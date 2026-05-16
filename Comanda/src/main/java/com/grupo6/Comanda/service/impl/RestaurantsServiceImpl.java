@@ -28,26 +28,32 @@ public class RestaurantsServiceImpl implements RestaurantsService{
 
     @Override
     public ResponseEntity<RestaurantEntity> getOne(Long id) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getOne'");
+        return restaurantRepository.findById(id)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
     }
 
     @Override
     public RestaurantEntity create(RestaurantEntity restaurant) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'create'");
+        restaurant.setId(null);
+        return restaurantRepository.save(restaurant);
     }
 
     @Override
     public ResponseEntity<RestaurantEntity> update(Long id, RestaurantEntity updated) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'update'");
+         return restaurantRepository.findById(id).map(existing -> {
+            updated.setId(id);
+            return ResponseEntity.ok(restaurantRepository.save(updated));
+        }).orElse(ResponseEntity.notFound().build());
     }
 
     @Override
     public ResponseEntity<Void> delete(Long id) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'delete'");
+       if (!restaurantRepository.existsById(id)) {
+            return ResponseEntity.notFound().build();
+        }
+        restaurantRepository.deleteById(id);
+        return ResponseEntity.noContent().build();
     }
 
     @Override
