@@ -1,37 +1,34 @@
-HELP.md
-.gradle
-build/
-!gradle/wrapper/gradle-wrapper.jar
-!**/src/main/**/build/
-!**/src/test/**/build/
+# Maven
+target/
+*.jar
+*.war
 
-### STS ###
-.apt_generated
-.classpath
-.factorypath
-.project
-.settings
-.springBeans
-.sts4-cache
-bin/
-!**/src/main/**/bin/
-!**/src/test/**/bin/
+# Base de datos SQLite local
+*.db
+*.sqlite
 
-### IntelliJ IDEA ###
-.idea
-*.iws
+# IDE - IntelliJ IDEA
+.idea/
 *.iml
+*.iws
 *.ipr
-out/
-!**/src/main/**/out/
-!**/src/test/**/out/
 
-### NetBeans ###
-/nbproject/private/
-/nbbuild/
-/dist/
-/nbdist/
-/.nb-gradle/
+# IDE - Eclipse / STS
+.classpath
+.project
+.settings/
+bin/
 
-### VS Code ###
+# IDE - VS Code
 .vscode/
+
+# Logs
+*.log
+logs/
+
+# Spring Boot
+spring-shell.log
+
+# OS
+.DS_Store
+Thumbs.db
