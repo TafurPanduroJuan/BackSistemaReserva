@@ -1,5 +1,6 @@
 package com.grupo6.Comanda.service.impl;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 
@@ -58,26 +59,55 @@ public class RestaurantsServiceImpl implements RestaurantsService{
 
     @Override
     public List<RestaurantRequestEntity> listRequests(String estado) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'listRequests'");
+        return (estado == null || estado.isBlank())
+                ? requestRepository.findAll()
+                : requestRepository.findByEstado(estado);
     }
 
     @Override
     public RestaurantRequestEntity submitRequest(RestaurantRequestEntity req) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'submitRequest'");
+        req.setId(null);
+        req.setEstado("pendiente");
+        if (req.getFecha() == null || req.getFecha().isBlank()) {
+            req.setFecha(LocalDate.now().toString());
+        }
+        return requestRepository.save(req);
     }
 
     @Override
     public ResponseEntity<Map<String, Object>> acceptRequest(Long id) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'acceptRequest'");
+       return requestRepository.findById(id).map(req -> {
+            req.setEstado("aceptado");
+            requestRepository.save(req);
+
+            // Auto-create restaurant entry if it doesn't exist yet
+            if (restaurantRepository.findByNombre(req.getNombre()).isEmpty()) {
+                RestaurantEntity r = new RestaurantEntity();
+                r.setNombre(req.getNombre());
+                r.setTipo(req.getTipo());
+                r.setDistrito(req.getCiudad());
+                r.setDireccion("");
+                r.setMensajePersonalizado(req.getDescripcion());
+                r.setMesas(0);
+                r.setTelefono(req.getTelefono());
+                r.setEmail(req.getEmail());
+                r.setImagen(null);
+                r.setHorarioApertura("");
+                r.setHorarioCierre("");
+                restaurantRepository.save(r);
+            }
+
+            return ResponseEntity.ok(Map.<String, Object>of("message", "Request accepted", "requestId", id));
+        }).orElse(ResponseEntity.notFound().build());
     }
 
     @Override
     public ResponseEntity<Map<String, Object>> rejectRequest(Long id) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'rejectRequest'");
+         return requestRepository.findById(id).map(req -> {
+            req.setEstado("rechazado");
+            requestRepository.save(req);
+            return ResponseEntity.ok(Map.<String, Object>of("message", "Request rejected", "requestId", id));
+        }).orElse(ResponseEntity.notFound().build());
     }
     
 }
