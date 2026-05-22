@@ -1,4 +1,4 @@
-package main.java.com.grupo6.Comanda.controller.advice;
+package com.grupo6.Comanda.controller.advice;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

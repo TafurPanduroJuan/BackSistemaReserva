@@ -1,4 +1,4 @@
-package main.java.com.grupo6.Comanda.controller;
+package com.grupo6.Comanda.controller;
 
 import com.grupo6.Comanda.model.entities.UserEntity;
 import com.grupo6.Comanda.service.UsersService;
