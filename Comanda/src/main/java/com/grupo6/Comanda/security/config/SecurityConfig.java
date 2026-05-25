@@ -40,7 +40,7 @@ public class SecurityConfig {
         this.userDetailsService = userDetailsService;
     }
 
-     @Bean
+    @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
@@ -70,43 +70,68 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-            .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-            .csrf(csrf -> csrf.disable())
-            .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-            .authorizeHttpRequests(auth -> auth
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+                .csrf(csrf -> csrf.disable())
+                .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .authorizeHttpRequests(auth -> auth
 
-                // ── Auth ────────────────────────────────────────────────────
-                .requestMatchers(HttpMethod.POST, "/api/auth/login", "/api/auth/register").permitAll()
+                        // ── Acceso público: autenticación ────────────────────────────
+                        .requestMatchers(HttpMethod.POST, "/api/auth/login", "/api/auth/register").permitAll()
 
-                // ── Restaurantes (lectura pública) ─────────────────────────
-                .requestMatchers(HttpMethod.GET, "/api/restaurants", "/api/restaurants/{id}").permitAll()
+                        // ── Acceso público: Swagger ───────────────────────────────────
+                        .requestMatchers(
+                                "/swagger-ui.html",
+                                "/swagger-ui/**",
+                                "/v3/api-docs",
+                                "/v3/api-docs/**",
+                                "/webjars/**")
+                        .permitAll()
 
-                // ── Solicitud de registro de restaurante (pública) ──────────
-                .requestMatchers(HttpMethod.POST, "/api/restaurants/requests").permitAll()
+                        // ── Acceso público: ver restaurantes ──────────────────────────
+                        .requestMatchers(HttpMethod.GET, "/api/restaurants", "/api/restaurants/{id}").permitAll()
 
-                // ── Comentarios desde formulario público ────────────────────
-                .requestMatchers(HttpMethod.POST, "/api/comments").permitAll()
+                        // ── Acceso público: enviar solicitud de restaurante ───────────
+                        .requestMatchers(HttpMethod.POST, "/api/restaurants/requests").permitAll()
 
-                // ── Mesas: reservar y consultar (público para BookingModal) ─
-                .requestMatchers(HttpMethod.POST, "/api/tables/reserve").permitAll()
-                .requestMatchers(HttpMethod.GET,  "/api/tables/**").permitAll()
+                        // ── Acceso público: comentarios ───────────────────────────────
+                        .requestMatchers(HttpMethod.POST, "/api/comments").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/comments/**").permitAll()
 
-                // ── Swagger / OpenAPI (siempre público) ─────────────────────
-                .requestMatchers(
-                    "/swagger-ui.html",
-                    "/swagger-ui/**",
-                    "/v3/api-docs",
-                    "/v3/api-docs/**",
-                    "/webjars/**"
-                ).permitAll()
+                        // ── Acceso público: ver y reservar mesas ──────────────────────
+                        .requestMatchers(HttpMethod.GET, "/api/tables/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/tables/reserve").permitAll()
 
-                // ── Todo lo demás requiere autenticación ────────────────────
-                .anyRequest().authenticated()
-            )
-            .addFilterBefore(
-                new JwtAuthenticationFilter(jwtService, userDetailsService),
-                UsernamePasswordAuthenticationFilter.class
-            );
+                        // ── ADMINISTRADOR: gestión de solicitudes ─────────────────────
+                        .requestMatchers("/api/restaurants/requests/**").hasRole("ADMINISTRADOR")
+
+                        // ── ADMINISTRADOR: eliminar restaurantes ──────────────────────
+                        .requestMatchers(HttpMethod.DELETE, "/api/restaurants/**").hasRole("ADMINISTRADOR")
+
+                        // ── ADMINISTRADOR: gestión de usuarios ────────────────────────
+                        .requestMatchers("/api/users/**").hasRole("ADMINISTRADOR")
+
+                        // ── PERSONAL y ADMINISTRADOR: editar restaurante ──────────────
+                        .requestMatchers(HttpMethod.PUT, "/api/restaurants/{id}")
+                        .hasAnyRole("ADMINISTRADOR", "PERSONAL")
+
+                        // ── PERSONAL y ADMINISTRADOR: gestión de mesas ────────────────
+                        .requestMatchers(HttpMethod.POST, "/api/tables").hasAnyRole("ADMINISTRADOR", "PERSONAL")
+                        .requestMatchers(HttpMethod.DELETE, "/api/tables/**").hasAnyRole("ADMINISTRADOR", "PERSONAL")
+
+                        // ── PERSONAL y ADMINISTRADOR: ver y gestionar reservas ────────
+                        .requestMatchers(HttpMethod.GET, "/api/reservations/**").hasAnyRole("ADMINISTRADOR", "PERSONAL")
+                        .requestMatchers(HttpMethod.PATCH, "/api/reservations/**")
+                        .hasAnyRole("ADMINISTRADOR", "PERSONAL")
+
+                        // ── USUARIO: ver su propia cuenta ────────────────────────────
+                        .requestMatchers("/api/account/**").hasAnyRole("USUARIO", "ADMINISTRADOR")
+
+                        // ── Todo lo demás requiere estar autenticado ──────────────────
+                        .anyRequest().authenticated()
+                    )
+                .addFilterBefore(
+                        new JwtAuthenticationFilter(jwtService, userDetailsService),
+                        UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
@@ -116,6 +141,3 @@ public class SecurityConfig {
         return config.getAuthenticationManager();
     }
 }
-
-
-
