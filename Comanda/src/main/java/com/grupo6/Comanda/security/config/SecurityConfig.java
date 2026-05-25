@@ -67,3 +67,48 @@ public class SecurityConfig {
         return source;
     }
 
+    @Bean
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        http
+            .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+            .csrf(csrf -> csrf.disable())
+            .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+            .authorizeHttpRequests(auth -> auth
+
+                // ── Auth ────────────────────────────────────────────────────
+                .requestMatchers(HttpMethod.POST, "/api/auth/login", "/api/auth/register").permitAll()
+
+                // ── Restaurantes (lectura pública) ─────────────────────────
+                .requestMatchers(HttpMethod.GET, "/api/restaurants", "/api/restaurants/{id}").permitAll()
+
+                // ── Solicitud de registro de restaurante (pública) ──────────
+                .requestMatchers(HttpMethod.POST, "/api/restaurants/requests").permitAll()
+
+                // ── Comentarios desde formulario público ────────────────────
+                .requestMatchers(HttpMethod.POST, "/api/comments").permitAll()
+
+                // ── Mesas: reservar y consultar (público para BookingModal) ─
+                .requestMatchers(HttpMethod.POST, "/api/tables/reserve").permitAll()
+                .requestMatchers(HttpMethod.GET,  "/api/tables/**").permitAll()
+
+                // ── Swagger / OpenAPI (siempre público) ─────────────────────
+                .requestMatchers(
+                    "/swagger-ui.html",
+                    "/swagger-ui/**",
+                    "/v3/api-docs",
+                    "/v3/api-docs/**",
+                    "/webjars/**"
+                ).permitAll()
+
+                // ── Todo lo demás requiere autenticación ────────────────────
+                .anyRequest().authenticated()
+            )
+            .addFilterBefore(
+                new JwtAuthenticationFilter(jwtService, userDetailsService),
+                UsernamePasswordAuthenticationFilter.class
+            );
+
+        return http.build();
+    }
+
+
