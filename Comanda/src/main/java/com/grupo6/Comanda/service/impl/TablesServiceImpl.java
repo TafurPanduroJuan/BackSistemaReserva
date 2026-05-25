@@ -1,9 +1,5 @@
 package com.grupo6.Comanda.service.impl;
 
-import java.time.LocalDate;
-import java.util.List;
-import java.util.Map;
-
 import com.grupo6.Comanda.model.entities.ReservationEntity;
 import com.grupo6.Comanda.model.entities.RestaurantEntity;
 import com.grupo6.Comanda.model.entities.TableEntity;
@@ -12,7 +8,16 @@ import com.grupo6.Comanda.repository.RestaurantRepository;
 import com.grupo6.Comanda.repository.TableRepository;
 import com.grupo6.Comanda.service.TablesService;
 
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDate;
+import java.util.List;
+import java.util.Map;
+
+@Service
 public class TablesServiceImpl implements TablesService {
+
     private final TableRepository tableRepository;
     private final ReservationRepository reservationRepository;
     private final RestaurantRepository restaurantRepository;
@@ -25,25 +30,24 @@ public class TablesServiceImpl implements TablesService {
         this.restaurantRepository = restaurantRepository;
     }
 
-
     @Override
     public List<TableEntity> getTablesByRestaurant(Long restaurantId) {
-       return tableRepository.findByRestaurant_Id(restaurantId);
+        return tableRepository.findByRestaurant_Id(restaurantId);
     }
 
     @Override
     public List<TableEntity> getAvailableTables(Long restaurantId, String zona) {
-       List<TableEntity> all = tableRepository.findByRestaurant_Id(restaurantId);
-       
-       return all.stream()
-       .filter(t -> "disponible".equalsIgnoreCase(t.getEstado()))
+        List<TableEntity> all = tableRepository.findByRestaurant_Id(restaurantId);
+        return all.stream()
+                .filter(t -> "disponible".equalsIgnoreCase(t.getEstado()))
                 .filter(t -> zona == null || zona.isBlank() || zona.equalsIgnoreCase(t.getZona()))
                 .toList();
     }
 
     @Override
+    @Transactional
     public String reserveTable(Map<String, Object> payload) {
-       if (payload == null) return "Missing payload";
+        if (payload == null) return "Missing payload";
 
         Object restaurantIdObj = payload.get("restaurantId");
         Object tableNumeroObj  = payload.get("tableNumero");
@@ -95,5 +99,4 @@ public class TablesServiceImpl implements TablesService {
 
         return "Reserved with id=" + savedRes.getId();
     }
-    
 }
