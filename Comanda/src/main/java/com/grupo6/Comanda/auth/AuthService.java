@@ -46,8 +46,14 @@ public class AuthService {
         }
 
         String token = jwtService.generateToken(buildSpringUser(user));
-        // Return lowercase rol to match frontend expectations (administrador, personal, usuario)
-        return new AuthResponse(token, user.getRole().name().toLowerCase());
+        
+        return new AuthResponse(
+                token,
+                user.getRole().name().toLowerCase(),
+                user.getId(),
+                user.getName(),
+                user.getEmail()
+        );
     }
 
     public AuthResponse register(RegisterRequest request) {
@@ -60,7 +66,7 @@ public class AuthService {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Email already registered");
         }
 
-        // Frontend sends rol as lowercase ("administrador", "personal", "usuario")
+       
         UserRole role;
         try {
             String rolRaw = request.getRol();
@@ -83,7 +89,13 @@ public class AuthService {
         UserEntity saved = userRepository.save(user);
 
         String token = jwtService.generateToken(buildSpringUser(saved));
-        return new AuthResponse(token, saved.getRole().name().toLowerCase());
+        return new AuthResponse(
+                token,
+                saved.getRole().name().toLowerCase(),
+                saved.getId(),
+                saved.getName(),
+                saved.getEmail()
+        );
     }
 
     private org.springframework.security.core.userdetails.UserDetails buildSpringUser(UserEntity user) {
