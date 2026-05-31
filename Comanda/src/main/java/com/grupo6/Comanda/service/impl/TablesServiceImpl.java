@@ -12,6 +12,7 @@ import com.grupo6.Comanda.repository.RestaurantRepository;
 import com.grupo6.Comanda.repository.TableRepository;
 import com.grupo6.Comanda.service.TablesService;
 
+@Service
 public class TablesServiceImpl implements TablesService {
     private final TableRepository tableRepository;
     private final ReservationRepository reservationRepository;
@@ -39,6 +40,18 @@ public class TablesServiceImpl implements TablesService {
        .filter(t -> "disponible".equalsIgnoreCase(t.getEstado()))
                 .filter(t -> zona == null || zona.isBlank() || zona.equalsIgnoreCase(t.getZona()))
                 .toList();
+    }
+    
+    @Override
+    public TableEntity createTable(Long restaurantId, TableEntity table) {
+        RestaurantEntity restaurant = restaurantRepository.findById(restaurantId)
+                .orElseThrow(() -> new IllegalArgumentException("Restaurant not found: " + restaurantId));
+        table.setId(null);
+        table.setRestaurant(restaurant);
+        if (table.getEstado() == null || table.getEstado().isBlank()) {
+            table.setEstado("disponible");
+        }
+        return tableRepository.save(table);
     }
 
     @Override
