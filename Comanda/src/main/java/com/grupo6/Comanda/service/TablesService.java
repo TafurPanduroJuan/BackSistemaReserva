@@ -11,5 +11,7 @@ public interface TablesService {
     List<TableEntity> getAvailableTables(Long restaurantId, String zona);
 
     String reserveTable(java.util.Map<String, Object> payload);
+
+    TableEntity createTable(Long restaurantId, TableEntity table);
 }
 
