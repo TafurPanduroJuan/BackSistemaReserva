@@ -12,6 +12,7 @@ import com.grupo6.Comanda.repository.RestaurantRepository;
 import com.grupo6.Comanda.repository.TableRepository;
 import com.grupo6.Comanda.service.TablesService;
 
+@Service
 public class TablesServiceImpl implements TablesService {
     private final TableRepository tableRepository;
     private final ReservationRepository reservationRepository;
