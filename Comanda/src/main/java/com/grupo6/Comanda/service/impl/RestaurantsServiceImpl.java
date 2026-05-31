@@ -1,19 +1,21 @@
 package com.grupo6.Comanda.service.impl;
 
-import java.time.LocalDate;
-import java.util.List;
-import java.util.Map;
-
-import org.springframework.http.ResponseEntity;
-
 import com.grupo6.Comanda.model.entities.RestaurantEntity;
 import com.grupo6.Comanda.model.entities.RestaurantRequestEntity;
 import com.grupo6.Comanda.repository.RestaurantRepository;
 import com.grupo6.Comanda.repository.RestaurantRequestRepository;
 import com.grupo6.Comanda.service.RestaurantsService;
 
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Service;
+
+import java.time.LocalDate;
+import java.util.List;
+import java.util.Map;
+
 @Service
-public class RestaurantsServiceImpl implements RestaurantsService{
+public class RestaurantsServiceImpl implements RestaurantsService {
+
     private final RestaurantRepository restaurantRepository;
     private final RestaurantRequestRepository requestRepository;
 
@@ -43,7 +45,7 @@ public class RestaurantsServiceImpl implements RestaurantsService{
 
     @Override
     public ResponseEntity<RestaurantEntity> update(Long id, RestaurantEntity updated) {
-         return restaurantRepository.findById(id).map(existing -> {
+        return restaurantRepository.findById(id).map(existing -> {
             updated.setId(id);
             return ResponseEntity.ok(restaurantRepository.save(updated));
         }).orElse(ResponseEntity.notFound().build());
@@ -51,7 +53,7 @@ public class RestaurantsServiceImpl implements RestaurantsService{
 
     @Override
     public ResponseEntity<Void> delete(Long id) {
-       if (!restaurantRepository.existsById(id)) {
+        if (!restaurantRepository.existsById(id)) {
             return ResponseEntity.notFound().build();
         }
         restaurantRepository.deleteById(id);
@@ -77,7 +79,7 @@ public class RestaurantsServiceImpl implements RestaurantsService{
 
     @Override
     public ResponseEntity<Map<String, Object>> acceptRequest(Long id) {
-       return requestRepository.findById(id).map(req -> {
+        return requestRepository.findById(id).map(req -> {
             req.setEstado("aceptado");
             requestRepository.save(req);
 
@@ -104,11 +106,10 @@ public class RestaurantsServiceImpl implements RestaurantsService{
 
     @Override
     public ResponseEntity<Map<String, Object>> rejectRequest(Long id) {
-         return requestRepository.findById(id).map(req -> {
+        return requestRepository.findById(id).map(req -> {
             req.setEstado("rechazado");
             requestRepository.save(req);
             return ResponseEntity.ok(Map.<String, Object>of("message", "Request rejected", "requestId", id));
         }).orElse(ResponseEntity.notFound().build());
     }
-    
 }
