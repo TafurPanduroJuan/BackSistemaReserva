@@ -45,6 +45,10 @@ public class CommentsServiceImpl implements CommentsService {
         if (comment.getFecha() == null || comment.getFecha().isBlank()) {
             comment.setFecha(LocalDate.now().toString());
         }
+        if (comment.getRestaurant() != null && comment.getRestaurant().getId() != null) {
+            restaurantRepository.findById(comment.getRestaurant().getId())
+                .ifPresent(comment::setRestaurant);
+        }
         return commentRepository.save(comment);
     }
 
