@@ -19,6 +19,12 @@ public class TablesApiController {
     public TablesApiController(TablesService tablesService) { 
         this.tablesService = tablesService;
     }
+    @PostMapping
+    public ResponseEntity<TableEntity> createTable(
+            @RequestParam("restaurantId") Long restaurantId,
+            @RequestBody TableEntity table) {
+        return ResponseEntity.ok(tablesService.createTable(restaurantId, table));
+    }
 
     @GetMapping
     public ResponseEntity<List<TableEntity>> getTablesByRestaurant(
