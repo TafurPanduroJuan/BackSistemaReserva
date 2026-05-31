@@ -6,7 +6,7 @@
 -- Pasos para Conectar la BD a pgAdmin 
 
 --HOSTNAME 
--- dpg-d8acrbj7uimc73aaiid0-a
+-- dpg-d8acrbj7uimc73aaiid0-a.oregon-postgres.render.com
 
 --PORT 
 ---5432
