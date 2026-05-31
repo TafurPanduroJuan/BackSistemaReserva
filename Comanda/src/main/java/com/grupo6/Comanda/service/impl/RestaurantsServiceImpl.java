@@ -12,6 +12,7 @@ import com.grupo6.Comanda.repository.RestaurantRepository;
 import com.grupo6.Comanda.repository.RestaurantRequestRepository;
 import com.grupo6.Comanda.service.RestaurantsService;
 
+@Service
 public class RestaurantsServiceImpl implements RestaurantsService{
     private final RestaurantRepository restaurantRepository;
     private final RestaurantRequestRepository requestRepository;
