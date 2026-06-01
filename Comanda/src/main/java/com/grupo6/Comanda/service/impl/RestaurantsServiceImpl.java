@@ -47,7 +47,6 @@ public class RestaurantsServiceImpl implements RestaurantsService {
     public ResponseEntity<RestaurantEntity> update(Long id, RestaurantEntity updated) {
         return restaurantRepository.findById(id).map(existing -> {
 
-            
             if (updated.getNombre() != null && !updated.getNombre().isBlank()) {
                 existing.setNombre(updated.getNombre().trim());
             }
@@ -72,7 +71,6 @@ public class RestaurantsServiceImpl implements RestaurantsService {
             if (updated.getEmail() != null && !updated.getEmail().isBlank()) {
                 existing.setEmail(updated.getEmail().trim());
             }
-        
             if (updated.getImagen() != null) {
                 existing.setImagen(updated.getImagen());
             }
@@ -89,7 +87,7 @@ public class RestaurantsServiceImpl implements RestaurantsService {
 
     @Override
     public ResponseEntity<Void> delete(Long id) {
-       if (!restaurantRepository.existsById(id)) {
+        if (!restaurantRepository.existsById(id)) {
             return ResponseEntity.notFound().build();
         }
         restaurantRepository.deleteById(id);
@@ -115,7 +113,7 @@ public class RestaurantsServiceImpl implements RestaurantsService {
 
     @Override
     public ResponseEntity<Map<String, Object>> acceptRequest(Long id) {
-       return requestRepository.findById(id).map(req -> {
+        return requestRepository.findById(id).map(req -> {
             req.setEstado("aceptado");
             requestRepository.save(req);
 
@@ -141,7 +139,7 @@ public class RestaurantsServiceImpl implements RestaurantsService {
 
     @Override
     public ResponseEntity<Map<String, Object>> rejectRequest(Long id) {
-         return requestRepository.findById(id).map(req -> {
+        return requestRepository.findById(id).map(req -> {
             req.setEstado("rechazado");
             requestRepository.save(req);
             return ResponseEntity.ok(Map.<String, Object>of("message", "Request rejected", "requestId", id));
