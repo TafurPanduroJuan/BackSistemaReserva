@@ -115,8 +115,8 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET,  "/api/users/me").authenticated()
                         .requestMatchers(HttpMethod.PUT,  "/api/users/me").authenticated()
 
-                        // ── ADMINISTRADOR: gestión de usuarios ───────
-                        dd6db32 (fix(security): expose /api/users/me to authenticated users)
+                        // ── ADMINISTRADOR: gestión de usuarios ────────────────────────
+
                         .requestMatchers("/api/users/**").hasRole("ADMINISTRADOR")
 
                         // ── PERSONAL y ADMINISTRADOR: editar restaurante ──────────────
