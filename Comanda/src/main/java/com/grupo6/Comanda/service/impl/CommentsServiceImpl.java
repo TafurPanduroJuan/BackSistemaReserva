@@ -1,5 +1,6 @@
 package com.grupo6.Comanda.service.impl;
 
+import com.grupo6.Comanda.controller.dto.CommentsRequestDto;
 import com.grupo6.Comanda.model.entities.CommentEntity;
 import com.grupo6.Comanda.repository.CommentRepository;
 import com.grupo6.Comanda.repository.RestaurantRepository;
@@ -39,16 +40,25 @@ public class CommentsServiceImpl implements CommentsService {
     }
 
     @Override
-    public CommentEntity submit(CommentEntity comment) {
-        comment.setId(null);
+    public CommentEntity submitDto(CommentsRequestDto dto) {
+        CommentEntity comment = new CommentEntity();
         comment.setLeido(false);
-        if (comment.getFecha() == null || comment.getFecha().isBlank()) {
-            comment.setFecha(LocalDate.now().toString());
+        comment.setUsuario(dto.getUsuario());
+        comment.setEmail(dto.getEmail());
+        comment.setTelefono(dto.getTelefono());
+        comment.setTipo(dto.getTipo());
+        comment.setAsunto(dto.getAsunto());
+        comment.setMensaje(dto.getMensaje());
+        comment.setCalificacion(dto.getCalificacion());
+        comment.setFecha(dto.getFecha() != null && !dto.getFecha().isBlank()
+                ? dto.getFecha()
+                : LocalDate.now().toString());
+
+        if (dto.getRestaurantId() != null) {
+            restaurantRepository.findById(dto.getRestaurantId())
+                    .ifPresent(comment::setRestaurant);
         }
-        if (comment.getRestaurant() != null && comment.getRestaurant().getId() != null) {
-            restaurantRepository.findById(comment.getRestaurant().getId())
-                .ifPresent(comment::setRestaurant);
-        }
+
         return commentRepository.save(comment);
     }
 
