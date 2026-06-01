@@ -1,5 +1,6 @@
 package com.grupo6.Comanda.controller;
 
+import com.grupo6.Comanda.controller.dto.UpdateStatusRequest;
 import com.grupo6.Comanda.model.entities.ReservationEntity;
 import com.grupo6.Comanda.repository.ReservationRepository;
 import com.grupo6.Comanda.service.ReservationsService;
@@ -52,16 +53,15 @@ public class ReservationsApiController {
     @PatchMapping("/{id}/status")
     public ResponseEntity<Map<String, Object>> updateStatus(
             @PathVariable Long id,
-            @RequestBody Map<String, String> body) {
+            @RequestBody UpdateStatusRequest body) {
 
-        String nuevoEstado = body.get("estado");
-        if (nuevoEstado == null || nuevoEstado.isBlank()) {
+        if (body.getEstado() == null || body.getEstado().isBlank()) {
             Map<String, Object> error = new HashMap<>();
             error.put("error", "Missing 'estado' field");
             return ResponseEntity.badRequest().body(error);
         }
 
-        String estadoFinal = nuevoEstado;
+        String estadoFinal = body.getEstado();
 
         return reservationRepository.findById(id)
                 .map(res -> {
