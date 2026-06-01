@@ -1,13 +1,15 @@
 package com.grupo6.Comanda.service.impl;
 
-import com.grupo6.Comanda.controller.dto.CommentsRequestDto;
 import com.grupo6.Comanda.model.entities.CommentEntity;
+import com.grupo6.Comanda.model.entities.RestaurantEntity;
 import com.grupo6.Comanda.repository.CommentRepository;
 import com.grupo6.Comanda.repository.RestaurantRepository;
 import com.grupo6.Comanda.service.CommentsService;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -40,26 +42,32 @@ public class CommentsServiceImpl implements CommentsService {
     }
 
     @Override
-    public CommentEntity submitDto(CommentsRequestDto dto) {
-        CommentEntity comment = new CommentEntity();
-        comment.setLeido(false);
-        comment.setUsuario(dto.getUsuario());
-        comment.setEmail(dto.getEmail());
-        comment.setTelefono(dto.getTelefono());
-        comment.setTipo(dto.getTipo());
-        comment.setAsunto(dto.getAsunto());
-        comment.setMensaje(dto.getMensaje());
-        comment.setCalificacion(dto.getCalificacion());
-        comment.setFecha(dto.getFecha() != null && !dto.getFecha().isBlank()
-                ? dto.getFecha()
-                : LocalDate.now().toString());
+    public CommentEntity submit(CommentEntity incoming) {
 
-        if (dto.getRestaurantId() != null) {
-            restaurantRepository.findById(dto.getRestaurantId())
-                    .ifPresent(comment::setRestaurant);
+        // Validar que venga restaurant con id
+        if (incoming.getRestaurant() == null || incoming.getRestaurant().getId() == null) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "restaurant.id is required");
         }
 
-        return commentRepository.save(comment);
+        // Buscar el restaurante real en la BD por su id
+        Long restaurantId = incoming.getRestaurant().getId();
+        RestaurantEntity restaurant = restaurantRepository.findById(restaurantId)
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND,
+                        "Restaurant not found with id: " + restaurantId));
+
+        // Reemplazar el objeto restaurant del body por el real de la BD
+        incoming.setRestaurant(restaurant);
+
+        // Valores por defecto
+        incoming.setLeido(false);
+        if (incoming.getFecha() == null || incoming.getFecha().isBlank()) {
+            incoming.setFecha(LocalDate.now().toString());
+        }
+
+        return commentRepository.save(incoming);
     }
 
     @Override

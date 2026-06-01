@@ -101,17 +101,25 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/tables/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/tables/reserve").permitAll()
 
+                        // Cualquier usuario autenticado puede leer y editar su propio perfil
+                        .requestMatchers(HttpMethod.GET, "/api/users/me").authenticated()
+                        .requestMatchers(HttpMethod.PUT, "/api/users/me").authenticated()
+
                         // ── ADMINISTRADOR: gestión de solicitudes ─────────────────────
                         .requestMatchers("/api/restaurants/requests/**").hasRole("ADMINISTRADOR")
 
                         // ── ADMINISTRADOR: eliminar restaurantes ──────────────────────
                         .requestMatchers(HttpMethod.DELETE, "/api/restaurants/**").hasRole("ADMINISTRADOR")
 
+<<<<<<< HEAD
                           // ── Cualquier usuario autenticado: ver y editar su propio perfil
                         .requestMatchers(HttpMethod.GET,  "/api/users/me").authenticated()
                         .requestMatchers(HttpMethod.PUT,  "/api/users/me").authenticated()
 
                         // ── ADMINISTRADOR: gestión de usuarios ────────────────────────
+=======
+                        // ── ADMINISTRADOR: gestión de usuarios (resto del CRUD) ───────
+>>>>>>> dd6db32 (fix(security): expose /api/users/me to authenticated users)
                         .requestMatchers("/api/users/**").hasRole("ADMINISTRADOR")
 
                         // ── PERSONAL y ADMINISTRADOR: editar restaurante ──────────────
