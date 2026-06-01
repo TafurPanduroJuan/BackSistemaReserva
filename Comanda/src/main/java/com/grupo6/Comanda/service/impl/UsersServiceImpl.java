@@ -51,7 +51,6 @@ public class UsersServiceImpl implements UsersService {
     @Override
     public ResponseEntity<Void> delete(Long id) {
        if(!userRepository.existsById(id)) return ResponseEntity.notFound().build();
-
        userRepository.deleteById(id);
        return ResponseEntity.noContent().build();
     }
@@ -62,15 +61,27 @@ public class UsersServiceImpl implements UsersService {
        return userRepository.findByEmail(principal.getUsername())
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
-  
     }
+
 
     @Override
     public ResponseEntity<UserEntity> updateMe(UserDetails principal, Map<String, String> body) {
-         if (principal == null) return ResponseEntity.status(401).build();
+        if (principal == null) return ResponseEntity.status(401).build();
+
         return userRepository.findByEmail(principal.getUsername()).map(user -> {
-            if (body.containsKey("nombre")) user.setName(body.get("nombre"));
-            if (body.containsKey("avatar")) user.setAvatar(body.get("avatar"));
+
+            // Acepta "nombre" o "name" 
+            String nuevoNombre = body.getOrDefault("nombre", body.get("name"));
+            if (nuevoNombre != null && !nuevoNombre.isBlank()) {
+                user.setName(nuevoNombre.trim());
+            }
+
+            // Acepta "avatar" o "avatarUrl"
+            String nuevoAvatar = body.getOrDefault("avatar", body.get("avatarUrl"));
+            if (nuevoAvatar != null && !nuevoAvatar.isBlank()) {
+                user.setAvatar(nuevoAvatar.trim());
+            }
+
             return ResponseEntity.ok(userRepository.save(user));
         }).orElse(ResponseEntity.notFound().build());
     }
