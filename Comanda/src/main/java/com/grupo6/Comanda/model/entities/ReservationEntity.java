@@ -1,54 +1,62 @@
 package com.grupo6.Comanda.model.entities;
 
-import com.grupo6.Comanda.model.enums.ReservationStatus;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
 
+@Schema(description = "Reserva de mesa en un restaurante")
 @Entity
 @Table(name = "reservations")
 public class ReservationEntity {
 
+    @Schema(description = "ID de la reserva", example = "1", accessMode = Schema.AccessMode.READ_ONLY)
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)  // SQLite: INTEGER PRIMARY KEY auto-increments
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private Long id;
 
+    @Schema(description = "Restaurante al que pertenece la reserva")
     @ManyToOne(optional = false)
     @JoinColumn(name = "restaurant_id", nullable = false)
     private RestaurantEntity restaurant;
 
+    @Schema(description = "Nombre del cliente", example = "Ana Torres")
     @Column(name = "cliente", nullable = false)
     private String cliente;
 
+    @Schema(description = "Correo electrónico del cliente", example = "ana@example.com")
     @Column(name = "email", nullable = false)
     private String email;
 
+    
+    @Schema(description = "Teléfono del cliente (exactamente 9 dígitos)", example = "987654321")
     @Column(name = "tel", nullable = false)
-    private String tel;
+    private Long tel;
 
+    @Schema(description = "Fecha de la reserva (YYYY-MM-DD)", example = "2026-07-15")
     @Column(name = "fecha", nullable = false)
     private String fecha;
 
+    @Schema(description = "Hora de la reserva (HH:mm)", example = "19:30")
     @Column(name = "hora", nullable = false)
     private String hora;
 
+    @Schema(description = "Número de personas", example = "4")
     @Column(name = "personas", nullable = false)
     private Integer personas;
 
+    @Schema(description = "Número de mesa asignada", example = "5")
     @Column(name = "mesa_numero", nullable = false)
     private Integer mesaNumero;
 
+    @Schema(description = "Zona del restaurante (interior / exterior / terraza)", example = "interior")
     @Column(name = "zona", nullable = false)
     private String zona;
 
+    @Schema(description = "Notas adicionales del cliente", example = "Celebración de cumpleaños")
     @Column(name = "notas")
     private String notas;
 
-   /**
-     * SQLite guarda esto como texto. 
-     * El esquema usa valores en minúscula (pendiente, confirmada, cancelada, cancelada_cliente). 
-     * Usamos un convertidor para que el enum en Java quede en mayúscula y en la BD en minúscula.
-    */
-
+    @Schema(description = "Estado de la reserva: pendiente | confirmada | cancelada | cancelada_cliente", example = "pendiente")
     @Column(name = "estado", nullable = false)
     private String estado;
 
@@ -64,8 +72,8 @@ public class ReservationEntity {
     public String getEmail() { return email; }
     public void setEmail(String email) { this.email = email; }
 
-    public String getTel() { return tel; }
-    public void setTel(String tel) { this.tel = tel; }
+    public Long getTel() { return tel; }
+    public void setTel(Long tel) { this.tel = tel; }
 
     public String getFecha() { return fecha; }
     public void setFecha(String fecha) { this.fecha = fecha; }
