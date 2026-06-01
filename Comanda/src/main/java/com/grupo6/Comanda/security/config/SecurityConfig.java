@@ -107,6 +107,10 @@ public class SecurityConfig {
                         // ── ADMINISTRADOR: eliminar restaurantes ──────────────────────
                         .requestMatchers(HttpMethod.DELETE, "/api/restaurants/**").hasRole("ADMINISTRADOR")
 
+                          // ── Cualquier usuario autenticado: ver y editar su propio perfil
+                        .requestMatchers(HttpMethod.GET,  "/api/users/me").authenticated()
+                        .requestMatchers(HttpMethod.PUT,  "/api/users/me").authenticated()
+
                         // ── ADMINISTRADOR: gestión de usuarios ────────────────────────
                         .requestMatchers("/api/users/**").hasRole("ADMINISTRADOR")
 
