@@ -1,54 +1,92 @@
 package com.grupo6.Comanda.auth.dto;
 
+import io.swagger.v3.oas.annotations.media.Schema;
+
 public final class AuthDtos {
 
     private AuthDtos() {}
 
+    // ─────────────────────────────────────────────────────────────────────────
+    // Login
+    // ─────────────────────────────────────────────────────────────────────────
+
+    @Schema(description = "Credenciales para iniciar sesión")
     public static class LoginRequest {
+
+        @Schema(description = "Correo electrónico registrado", example = "diego@example.com", requiredMode = Schema.RequiredMode.REQUIRED)
         public String email;
+
+        @Schema(description = "Contraseña del usuario", example = "Mi$Clave123", requiredMode = Schema.RequiredMode.REQUIRED)
         public String password;
 
         public LoginRequest() {}
-        public String getEmail() { return email; }
-        public void setEmail(String email) { this.email = email; }
+        public String getEmail()    { return email; }
+        public void   setEmail(String email)       { this.email = email; }
         public String getPassword() { return password; }
-        public void setPassword(String password) { this.password = password; }
+        public void   setPassword(String password) { this.password = password; }
     }
 
+    // ─────────────────────────────────────────────────────────────────────────
+    // Register
+    // ─────────────────────────────────────────────────────────────────────────
+
+    @Schema(description = "Datos para crear una cuenta nueva")
     public static class RegisterRequest {
+
+        @Schema(description = "Nombre completo del usuario", example = "Diego García", requiredMode = Schema.RequiredMode.REQUIRED)
         public String nombre;
+
+        @Schema(description = "Correo electrónico único", example = "diego@example.com", requiredMode = Schema.RequiredMode.REQUIRED)
         public String email;
+
+        @Schema(description = "Contraseña (mínimo 6 caracteres)", example = "Mi$Clave123", requiredMode = Schema.RequiredMode.REQUIRED)
         public String password;
-        /** Frontend sends lowercase: administrador | personal | usuario */
+
+        @Schema(description = "Rol del usuario: administrador | personal | usuario", example = "usuario")
         public String rol;
+
+        @Schema(description = "Nombre del restaurante asignado (solo para rol 'personal')", example = "La Bella Italia")
         public String restaurante;
-        public String telefono;
+
+        /** CORRECCIÓN: ahora es Long para forzar solo números; máx 9 dígitos validado en el endpoint. */
+        @Schema(description = "Teléfono de contacto (exactamente 9 dígitos)", example = "987654321")
+        public Long telefono;
 
         public RegisterRequest() {}
-        public String getNombre() { return nombre; }
-        public void setNombre(String nombre) { this.nombre = nombre; }
-        public String getEmail() { return email; }
-        public void setEmail(String email) { this.email = email; }
-        public String getPassword() { return password; }
-        public void setPassword(String password) { this.password = password; }
-        public String getRol() { return rol; }
-        public void setRol(String rol) { this.rol = rol; }
-        public String getRestaurante() { return restaurante; }
-        public void setRestaurante(String restaurante) { this.restaurante = restaurante; }
-        public String getTelefono() { return telefono; }
-        public void setTelefono(String telefono) { this.telefono = telefono; }
+        public String getNombre()     { return nombre; }
+        public void   setNombre(String nombre)         { this.nombre = nombre; }
+        public String getEmail()      { return email; }
+        public void   setEmail(String email)           { this.email = email; }
+        public String getPassword()   { return password; }
+        public void   setPassword(String password)     { this.password = password; }
+        public String getRol()        { return rol; }
+        public void   setRol(String rol)               { this.rol = rol; }
+        public String getRestaurante(){ return restaurante; }
+        public void   setRestaurante(String restaurante){ this.restaurante = restaurante; }
+        public Long   getTelefono()   { return telefono; }
+        public void   setTelefono(Long telefono)       { this.telefono = telefono; }
     }
 
+    // ─────────────────────────────────────────────────────────────────────────
+    // Response
+    // ─────────────────────────────────────────────────────────────────────────
+
+    @Schema(description = "Respuesta de autenticación con JWT")
     public static class AuthResponse {
-        /** JWT token */
+
+        @Schema(description = "JWT para usar en Authorization: Bearer <token>", example = "eyJhbGciOiJIUzI1NiJ9...")
         public String token;
-        /** Lowercase role: administrador | personal | usuario */
+
+        @Schema(description = "Rol del usuario autenticado", example = "usuario")
         public String rol;
-        /** User id (useful for frontend session) */
+
+        @Schema(description = "ID del usuario", example = "1")
         public Long id;
-        /** User display name */
+
+        @Schema(description = "Nombre del usuario", example = "Diego García")
         public String nombre;
-        /** User email */
+
+        @Schema(description = "Correo del usuario", example = "diego@example.com")
         public String email;
 
         public AuthResponse() {}
@@ -67,16 +105,14 @@ public final class AuthDtos {
         }
 
         public String getToken()  { return token; }
-        public void setToken(String token) { this.token = token; }
+        public void   setToken(String token)   { this.token = token; }
         public String getRol()    { return rol; }
-        public void setRol(String rol) { this.rol = rol; }
-        public Long getId()       { return id; }
-        public void setId(Long id) { this.id = id; }
+        public void   setRol(String rol)       { this.rol = rol; }
+        public Long   getId()     { return id; }
+        public void   setId(Long id)           { this.id = id; }
         public String getNombre() { return nombre; }
-        public void setNombre(String nombre) { this.nombre = nombre; }
+        public void   setNombre(String nombre) { this.nombre = nombre; }
         public String getEmail()  { return email; }
-        public void setEmail(String email) { this.email = email; }
+        public void   setEmail(String email)   { this.email = email; }
     }
-
-   
 }
