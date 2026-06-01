@@ -65,8 +65,9 @@ public class RestaurantsServiceImpl implements RestaurantsService {
             if (updated.getMesas() != null) {
                 existing.setMesas(updated.getMesas());
             }
-            if (updated.getTelefono() != null && !updated.getTelefono().isBlank()) {
-                existing.setTelefono(updated.getTelefono().trim());
+            // telefono es Long — solo actualizar si viene informado
+            if (updated.getTelefono() != null) {
+                existing.setTelefono(updated.getTelefono());
             }
             if (updated.getEmail() != null && !updated.getEmail().isBlank()) {
                 existing.setEmail(updated.getEmail().trim());
@@ -125,7 +126,7 @@ public class RestaurantsServiceImpl implements RestaurantsService {
                 r.setDireccion("");
                 r.setMensajePersonalizado(req.getDescripcion());
                 r.setMesas(0);
-                r.setTelefono(req.getTelefono());
+                r.setTelefono(req.getTelefono());   
                 r.setEmail(req.getEmail());
                 r.setImagen(null);
                 r.setHorarioApertura("");
