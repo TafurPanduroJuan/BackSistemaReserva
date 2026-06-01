@@ -1,6 +1,7 @@
 package com.grupo6.Comanda.controller;
 
 import com.grupo6.Comanda.auth.dto.AuthDtos.UpdateMeRequest;
+import com.grupo6.Comanda.auth.dto.AuthDtos.ChangeRoleRequest;
 import com.grupo6.Comanda.model.entities.UserEntity;
 import com.grupo6.Comanda.service.UsersService;
 
@@ -49,8 +50,11 @@ public class UsersApiController {
      */
     @PutMapping("/{id}/role")
     public ResponseEntity<Map<String, Object>> changeRole(@PathVariable Long id,
-                                                          @RequestBody Map<String, String> body) {
-        return usersService.changeRole(id, body);
+                                                          @RequestBody ChangeRoleRequest body) {
+        return usersService.changeRole(id, Map.of(
+                "rol", body.getRol() != null ? body.getRol() : "",
+                "restaurante", body.getRestaurante() != null ? body.getRestaurante() : ""
+        ));
     }
 
     @DeleteMapping("/{id}")
@@ -63,7 +67,6 @@ public class UsersApiController {
     public ResponseEntity<UserEntity> me(@AuthenticationPrincipal UserDetails principal) {
         return usersService.getMe(principal);
     }
-
 
     @PutMapping("/me")
     public ResponseEntity<UserEntity> updateMe(@AuthenticationPrincipal UserDetails principal,
