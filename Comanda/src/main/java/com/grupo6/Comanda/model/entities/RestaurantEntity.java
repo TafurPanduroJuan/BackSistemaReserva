@@ -3,6 +3,7 @@ package com.grupo6.Comanda.model.entities;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
 
+
 @Schema(description = "Datos de un restaurante registrado en la plataforma")
 @Entity
 @Table(name = "restaurants")
@@ -19,31 +20,31 @@ public class RestaurantEntity {
     private String nombre;
 
     @Schema(description = "Tipo de cocina", example = "Italiana")
-    @Column(name = "tipo", nullable = false)
+    @Column(name = "tipo")       
     private String tipo;
 
     @Schema(description = "Distrito donde se ubica", example = "Miraflores")
-    @Column(name = "distrito", nullable = false)
+    @Column(name = "distrito")    
     private String distrito;
 
     @Schema(description = "Dirección exacta", example = "Av. Larco 456, Miraflores")
-    @Column(name = "direccion", nullable = false)
+    @Column(name = "direccion")     
     private String direccion;
 
     @Schema(description = "Mensaje de bienvenida personalizado", example = "¡Te esperamos para una experiencia única!")
-    @Column(name = "mensaje_personalizado", nullable = false)
+    @Column(name = "mensaje_personalizado")  
     private String mensajePersonalizado;
 
     @Schema(description = "Número total de mesas disponibles", example = "20")
-    @Column(name = "mesas", nullable = false)
+    @Column(name = "mesas")      
     private Integer mesas;
 
-    @Schema(description = "Teléfono del restaurante (exactamente 9 dígitos)", example = "987654321")
-    @Column(name = "telefono", nullable = false)
+    @Schema(description = "Teléfono del restaurante", example = "987654321")
+    @Column(name = "telefono")     
     private String telefono;
 
     @Schema(description = "Correo electrónico de contacto", example = "contacto@labellaitalia.pe")
-    @Column(name = "email", nullable = false)
+    @Column(name = "email")        
     private String email;
 
     @Schema(description = "URL de la imagen del restaurante", example = "https://storage.example.com/img/bella-italia.jpg")
@@ -51,11 +52,11 @@ public class RestaurantEntity {
     private String imagen;
 
     @Schema(description = "Hora de apertura", example = "12:00 PM")
-    @Column(name = "horario_apertura", nullable = false)
+    @Column(name = "horario_apertura")   
     private String horarioApertura;
 
     @Schema(description = "Hora de cierre", example = "11:00 PM")
-    @Column(name = "horario_cierre", nullable = false)
+    @Column(name = "horario_cierre")     
     private String horarioCierre;
 
     public Long   getId()           { return id; }
