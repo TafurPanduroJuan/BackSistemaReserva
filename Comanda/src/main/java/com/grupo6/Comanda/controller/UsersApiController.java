@@ -1,5 +1,6 @@
 package com.grupo6.Comanda.controller;
 
+import com.grupo6.Comanda.auth.dto.AuthDtos.UpdateMeRequest;
 import com.grupo6.Comanda.model.entities.UserEntity;
 import com.grupo6.Comanda.service.UsersService;
 
@@ -63,10 +64,10 @@ public class UsersApiController {
         return usersService.getMe(principal);
     }
 
-    /** Update own profile (nombre, avatar). */
+
     @PutMapping("/me")
     public ResponseEntity<UserEntity> updateMe(@AuthenticationPrincipal UserDetails principal,
-                                               @RequestBody Map<String, String> body) {
+                                               @RequestBody UpdateMeRequest body) {
         return usersService.updateMe(principal, body);
     }
 }
