@@ -1,6 +1,5 @@
 package com.grupo6.Comanda.controller;
 
-import com.grupo6.Comanda.controller.dto.CommentsRequestDto;
 import com.grupo6.Comanda.model.entities.CommentEntity;
 import com.grupo6.Comanda.service.CommentsService;
 
@@ -37,10 +36,22 @@ public class CommentsApiController {
         return ResponseEntity.ok(commentsService.list(restaurantId, tipo));
     }
 
-    /** Public: submitted from the contact/form page. No auth required. */
+    /**
+     * Public: accepts CommentEntity directly.
+     * Only restaurant.id is required — the rest of the restaurant object is ignored.
+     * Example body:
+     * {
+     *   "restaurant": { "id": 1 },
+     *   "usuario": "Juan",
+     *   "email": "juan@test.com",
+     *   "tipo": "experiencia",
+     *   "asunto": "Test",
+     *   "mensaje": "Mensaje de prueba"
+     * }
+     */
     @PostMapping
-    public ResponseEntity<CommentEntity> submit(@RequestBody CommentsRequestDto dto) {
-        return ResponseEntity.ok(commentsService.submitDto(dto));
+    public ResponseEntity<CommentEntity> submit(@RequestBody CommentEntity comment) {
+        return ResponseEntity.ok(commentsService.submit(comment));
     }
 
     @PutMapping("/{id}/read")
