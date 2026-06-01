@@ -1,6 +1,6 @@
 package com.grupo6.Comanda.service.impl;
 
-import com.grupo6.Comanda.auth.dto.AuthDtos.UpdateMeRequest;
+import com.grupo6.Comanda.controller.dto.UpdateMeRequestDto;
 import com.grupo6.Comanda.model.entities.UserEntity;
 import com.grupo6.Comanda.model.enums.UserRole;
 import com.grupo6.Comanda.repository.UserRepository;
@@ -68,7 +68,7 @@ public class UsersServiceImpl implements UsersService {
 
 
     @Override
-    public ResponseEntity<UserEntity> updateMe(UserDetails principal, UpdateMeRequest body) {
+    public ResponseEntity<UserEntity> updateMe(UserDetails principal, UpdateMeRequestDto body) {
         if (principal == null) return ResponseEntity.status(401).build();
         if (body == null)      return ResponseEntity.badRequest().build();
 

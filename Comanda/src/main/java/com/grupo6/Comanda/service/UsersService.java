@@ -1,6 +1,6 @@
 package com.grupo6.Comanda.service;
 
-import com.grupo6.Comanda.auth.dto.AuthDtos.UpdateMeRequest;
+import com.grupo6.Comanda.controller.dto.UpdateMeRequestDto;
 import com.grupo6.Comanda.model.entities.UserEntity;
 
 import org.springframework.http.ResponseEntity;
@@ -21,5 +21,5 @@ public interface UsersService {
 
     ResponseEntity<UserEntity> getMe(UserDetails principal);
 
-    ResponseEntity<UserEntity> updateMe(UserDetails principal, UpdateMeRequest body);
+    ResponseEntity<UserEntity> updateMe(UserDetails principal, UpdateMeRequestDto body);
 }
