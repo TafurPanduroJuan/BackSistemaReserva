@@ -8,8 +8,10 @@ import com.grupo6.Comanda.repository.RestaurantRepository;
 import com.grupo6.Comanda.repository.TableRepository;
 import com.grupo6.Comanda.service.TablesService;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -43,7 +45,7 @@ public class TablesServiceImpl implements TablesService {
                 .filter(t -> zona == null || zona.isBlank() || zona.equalsIgnoreCase(t.getZona()))
                 .toList();
     }
-    
+
     @Override
     public TableEntity createTable(Long restaurantId, TableEntity table) {
         RestaurantEntity restaurant = restaurantRepository.findById(restaurantId)
@@ -81,15 +83,17 @@ public class TablesServiceImpl implements TablesService {
             return "Table is not available";
         }
 
-        String cliente  = (String) payload.getOrDefault("cliente", "");
-        String email    = (String) payload.getOrDefault("email", "");
-        String tel      = (String) payload.getOrDefault("tel", "");
-        String fecha    = (String) payload.getOrDefault("fecha", LocalDate.now().toString());
-        String hora     = (String) payload.getOrDefault("hora", "");
+        String  cliente  = (String) payload.getOrDefault("cliente", "");
+        String  email    = (String) payload.getOrDefault("email", "");
+        String  fecha    = (String) payload.getOrDefault("fecha", LocalDate.now().toString());
+        String  hora     = (String) payload.getOrDefault("hora", "");
         Integer personas = payload.get("personas") instanceof Number
                 ? ((Number) payload.get("personas")).intValue() : 0;
-        String zona     = (String) payload.getOrDefault("zona", table.getZona());
-        String notas    = (String) payload.getOrDefault("notas", null);
+        String  zona     = (String) payload.getOrDefault("zona", table.getZona());
+        String  notas    = (String) payload.getOrDefault("notas", null);
+
+        // tel puede venir como Number (JSON long) o como String — se normaliza a Long
+        Long tel = parseTel(payload.get("tel"));
 
         ReservationEntity reservation = new ReservationEntity();
         reservation.setRestaurant(restaurant);
@@ -102,7 +106,7 @@ public class TablesServiceImpl implements TablesService {
         reservation.setMesaNumero(tableNumero);
         reservation.setZona(zona);
         reservation.setNotas(notas);
-        reservation.setEstado("pendiente"); // matches DB CHECK constraint
+        reservation.setEstado("pendiente");
 
         ReservationEntity savedRes = reservationRepository.save(reservation);
 
@@ -110,5 +114,22 @@ public class TablesServiceImpl implements TablesService {
         tableRepository.save(table);
 
         return "Reserved with id=" + savedRes.getId();
+    }
+
+    private Long parseTel(Object raw) {
+        if (raw == null) return null;
+
+        String telStr;
+        if (raw instanceof Number) {
+            telStr = String.valueOf(((Number) raw).longValue());
+        } else {
+            telStr = raw.toString().trim();
+        }
+
+        if (!telStr.matches("\\d{9}")) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                    "El teléfono debe tener exactamente 9 dígitos numéricos");
+        }
+        return Long.parseLong(telStr);
     }
 }
