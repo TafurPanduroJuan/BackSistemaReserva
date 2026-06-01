@@ -46,7 +46,7 @@ public class AuthService {
         }
 
         String token = jwtService.generateToken(buildSpringUser(user));
-        
+
         return new AuthResponse(
                 token,
                 user.getRole().name().toLowerCase(),
@@ -66,7 +66,15 @@ public class AuthService {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Email already registered");
         }
 
-       
+        // CORRECCIÓN: validar teléfono — debe ser exactamente 9 dígitos si se envía
+        if (request.getTelefono() != null) {
+            String telStr = String.valueOf(request.getTelefono());
+            if (!telStr.matches("\\d{9}")) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                        "El teléfono debe tener exactamente 9 dígitos numéricos");
+            }
+        }
+
         UserRole role;
         try {
             String rolRaw = request.getRol();
@@ -83,6 +91,7 @@ public class AuthService {
         user.setRole(role);
         user.setPasswordHash(passwordHasher.hash(request.getPassword()));
         user.setRestaurant(request.getRestaurante());
+        user.setTelefono(request.getTelefono());  // Long — puede ser null si no se envió
         user.setAvatar(null);
         user.setCreatedAt(LocalDate.now().toString());
 

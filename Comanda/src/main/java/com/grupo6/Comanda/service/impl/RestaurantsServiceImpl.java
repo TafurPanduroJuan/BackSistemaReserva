@@ -1,17 +1,17 @@
 package com.grupo6.Comanda.service.impl;
 
+import java.time.LocalDate;
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Service;
+
 import com.grupo6.Comanda.model.entities.RestaurantEntity;
 import com.grupo6.Comanda.model.entities.RestaurantRequestEntity;
 import com.grupo6.Comanda.repository.RestaurantRepository;
 import com.grupo6.Comanda.repository.RestaurantRequestRepository;
 import com.grupo6.Comanda.service.RestaurantsService;
-
-import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Service;
-
-import java.time.LocalDate;
-import java.util.List;
-import java.util.Map;
 
 @Service
 public class RestaurantsServiceImpl implements RestaurantsService {
@@ -46,8 +46,42 @@ public class RestaurantsServiceImpl implements RestaurantsService {
     @Override
     public ResponseEntity<RestaurantEntity> update(Long id, RestaurantEntity updated) {
         return restaurantRepository.findById(id).map(existing -> {
-            updated.setId(id);
-            return ResponseEntity.ok(restaurantRepository.save(updated));
+
+            if (updated.getNombre() != null && !updated.getNombre().isBlank()) {
+                existing.setNombre(updated.getNombre().trim());
+            }
+            if (updated.getTipo() != null && !updated.getTipo().isBlank()) {
+                existing.setTipo(updated.getTipo().trim());
+            }
+            if (updated.getDistrito() != null && !updated.getDistrito().isBlank()) {
+                existing.setDistrito(updated.getDistrito().trim());
+            }
+            if (updated.getDireccion() != null && !updated.getDireccion().isBlank()) {
+                existing.setDireccion(updated.getDireccion().trim());
+            }
+            if (updated.getMensajePersonalizado() != null && !updated.getMensajePersonalizado().isBlank()) {
+                existing.setMensajePersonalizado(updated.getMensajePersonalizado().trim());
+            }
+            if (updated.getMesas() != null) {
+                existing.setMesas(updated.getMesas());
+            }
+            if (updated.getTelefono() != null && !updated.getTelefono().isBlank()) {
+                existing.setTelefono(updated.getTelefono().trim());
+            }
+            if (updated.getEmail() != null && !updated.getEmail().isBlank()) {
+                existing.setEmail(updated.getEmail().trim());
+            }
+            if (updated.getImagen() != null) {
+                existing.setImagen(updated.getImagen());
+            }
+            if (updated.getHorarioApertura() != null && !updated.getHorarioApertura().isBlank()) {
+                existing.setHorarioApertura(updated.getHorarioApertura().trim());
+            }
+            if (updated.getHorarioCierre() != null && !updated.getHorarioCierre().isBlank()) {
+                existing.setHorarioCierre(updated.getHorarioCierre().trim());
+            }
+
+            return ResponseEntity.ok(restaurantRepository.save(existing));
         }).orElse(ResponseEntity.notFound().build());
     }
 
@@ -83,7 +117,6 @@ public class RestaurantsServiceImpl implements RestaurantsService {
             req.setEstado("aceptado");
             requestRepository.save(req);
 
-            // Auto-create restaurant entry if it doesn't exist yet
             if (restaurantRepository.findByNombre(req.getNombre()).isEmpty()) {
                 RestaurantEntity r = new RestaurantEntity();
                 r.setNombre(req.getNombre());
