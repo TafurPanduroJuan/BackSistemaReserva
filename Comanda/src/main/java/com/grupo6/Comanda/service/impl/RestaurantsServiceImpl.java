@@ -43,16 +43,11 @@ public class RestaurantsServiceImpl implements RestaurantsService {
         return restaurantRepository.save(restaurant);
     }
 
-    /**
-     * CORRECCIÓN: En lugar de reemplazar todo el objeto (que causaba null en campos
-     * no enviados), ahora aplicamos un "patch" sobre el registro existente.
-     * Solo se actualiza un campo si el valor recibido NO es null ni vacío.
-     */
     @Override
     public ResponseEntity<RestaurantEntity> update(Long id, RestaurantEntity updated) {
         return restaurantRepository.findById(id).map(existing -> {
 
-            // Solo sobreescribe si el campo viene con valor
+            
             if (updated.getNombre() != null && !updated.getNombre().isBlank()) {
                 existing.setNombre(updated.getNombre().trim());
             }
