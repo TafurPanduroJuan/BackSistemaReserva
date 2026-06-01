@@ -68,7 +68,6 @@ public final class AuthDtos {
 
     // ─────────────────────────────────────────────────────────────────────────
     // UpdateMe — DTO dedicado para PUT /api/users/me
-    // Swagger mostrará exactamente estos campos como ejemplo 
     // ─────────────────────────────────────────────────────────────────────────
 
     @Schema(description = "Campos que el usuario puede actualizar en su perfil")
@@ -90,6 +89,31 @@ public final class AuthDtos {
         public void   setAvatar(String avatar)     { this.avatar = avatar; }
         public Long   getTelefono() { return telefono; }
         public void   setTelefono(Long telefono)   { this.telefono = telefono; }
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // ChangeRole — DTO dedicado para PUT /api/users/{id}/role
+    // ─────────────────────────────────────────────────────────────────────────
+
+    @Schema(description = "Datos para cambiar el rol de un usuario")
+    public static class ChangeRoleRequest {
+
+        @Schema(
+            description = "Nuevo rol del usuario",
+            example = "personal",
+            allowableValues = {"administrador", "personal", "usuario"},
+            requiredMode = Schema.RequiredMode.REQUIRED
+        )
+        private String rol;
+
+        @Schema(description = "Restaurante asignado (obligatorio si rol es 'personal')", example = "La Bella Italia")
+        private String restaurante;
+
+        public ChangeRoleRequest() {}
+        public String getRol()         { return rol; }
+        public void   setRol(String rol)               { this.rol = rol; }
+        public String getRestaurante() { return restaurante; }
+        public void   setRestaurante(String restaurante){ this.restaurante = restaurante; }
     }
 
     // ─────────────────────────────────────────────────────────────────────────

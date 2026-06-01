@@ -1,41 +1,53 @@
 package com.grupo6.Comanda.model.entities;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
 
+@Schema(description = "Solicitud de registro de un nuevo restaurante")
 @Entity
 @Table(name = "restaurant_requests")
 public class RestaurantRequestEntity {
 
+    @Schema(description = "ID de la solicitud", example = "1", accessMode = Schema.AccessMode.READ_ONLY)
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private Long id;
 
+    @Schema(description = "Nombre del restaurante a registrar", example = "El Rincón Peruano")
     @Column(name = "nombre", nullable = false)
     private String nombre;
 
+    @Schema(description = "Nombre del propietario", example = "Carlos López")
     @Column(name = "propietario", nullable = false)
     private String propietario;
 
+    @Schema(description = "Correo electrónico del propietario", example = "carlos@rinconperuano.pe")
     @Column(name = "email", nullable = false)
     private String email;
 
+    @Schema(description = "Tipo de cocina", example = "Peruana")
     @Column(name = "tipo", nullable = false)
     private String tipo;
 
+    @Schema(description = "Ciudad donde se ubicará el restaurante", example = "Lima")
     @Column(name = "ciudad", nullable = false)
     private String ciudad;
 
-    @Column(name = "telefono", nullable = false)
-    private String telefono;
 
+    @Schema(description = "Teléfono de contacto (exactamente 9 dígitos)", example = "987654321")
+    @Column(name = "telefono", nullable = false)
+    private Long telefono;
+
+    @Schema(description = "Descripción o mensaje adicional del solicitante", example = "Restaurante familiar con 10 años de experiencia")
     @Column(name = "descripcion", nullable = false)
     private String descripcion;
 
+    @Schema(description = "Fecha de la solicitud (ISO-8601)", example = "2026-06-01", accessMode = Schema.AccessMode.READ_ONLY)
     @Column(name = "fecha", nullable = false)
     private String fecha;
 
-    /** pendiente | aceptado | rechazado */
+    @Schema(description = "Estado de la solicitud: pendiente | aceptado | rechazado", example = "pendiente", accessMode = Schema.AccessMode.READ_ONLY)
     @Column(name = "estado", nullable = false)
     private String estado;
 
@@ -57,8 +69,8 @@ public class RestaurantRequestEntity {
     public String getCiudad() { return ciudad; }
     public void setCiudad(String ciudad) { this.ciudad = ciudad; }
 
-    public String getTelefono() { return telefono; }
-    public void setTelefono(String telefono) { this.telefono = telefono; }
+    public Long getTelefono() { return telefono; }
+    public void setTelefono(Long telefono) { this.telefono = telefono; }
 
     public String getDescripcion() { return descripcion; }
     public void setDescripcion(String descripcion) { this.descripcion = descripcion; }
