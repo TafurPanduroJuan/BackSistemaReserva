@@ -48,7 +48,6 @@ public final class AuthDtos {
         @Schema(description = "Nombre del restaurante asignado (solo para rol 'personal')", example = "La Bella Italia")
         public String restaurante;
 
-        /** CORRECCIÓN: ahora es Long para forzar solo números; máx 9 dígitos validado en el endpoint. */
         @Schema(description = "Teléfono de contacto (exactamente 9 dígitos)", example = "987654321")
         public Long telefono;
 
@@ -65,6 +64,32 @@ public final class AuthDtos {
         public void   setRestaurante(String restaurante){ this.restaurante = restaurante; }
         public Long   getTelefono()   { return telefono; }
         public void   setTelefono(Long telefono)       { this.telefono = telefono; }
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // UpdateMe — DTO dedicado para PUT /api/users/me
+    // Swagger mostrará exactamente estos campos como ejemplo 
+    // ─────────────────────────────────────────────────────────────────────────
+
+    @Schema(description = "Campos que el usuario puede actualizar en su perfil")
+    public static class UpdateMeRequest {
+
+        @Schema(description = "Nuevo nombre del usuario (opcional)", example = "Diego García")
+        public String nombre;
+
+        @Schema(description = "URL del nuevo avatar (opcional)", example = "https://storage.example.com/avatars/diego.jpg")
+        public String avatar;
+
+        @Schema(description = "Nuevo teléfono (exactamente 9 dígitos, opcional)", example = "987654321")
+        public Long telefono;
+
+        public UpdateMeRequest() {}
+        public String getNombre()   { return nombre; }
+        public void   setNombre(String nombre)     { this.nombre = nombre; }
+        public String getAvatar()   { return avatar; }
+        public void   setAvatar(String avatar)     { this.avatar = avatar; }
+        public Long   getTelefono() { return telefono; }
+        public void   setTelefono(Long telefono)   { this.telefono = telefono; }
     }
 
     // ─────────────────────────────────────────────────────────────────────────
