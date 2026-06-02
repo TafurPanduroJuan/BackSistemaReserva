@@ -1,6 +1,5 @@
 package com.grupo6.Comanda.controller;
 
-import com.grupo6.Comanda.controller.dto.ReserveTableRequest;
 import com.grupo6.Comanda.model.entities.TableEntity;
 import com.grupo6.Comanda.service.TablesService;
 
@@ -14,6 +13,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -27,6 +27,80 @@ public class TablesApiController {
     public TablesApiController(TablesService tablesService) {
         this.tablesService = tablesService;
     }
+
+    // ── DTO interno ──────────────────────────────────────────────────────────
+
+    @Schema(description = "Datos para reservar una mesa")
+    public static class ReserveTableRequest {
+
+        @Schema(description = "ID del restaurante", example = "1", requiredMode = Schema.RequiredMode.REQUIRED)
+        private Long restaurantId;
+
+        @Schema(description = "Número de mesa a reservar", example = "4", requiredMode = Schema.RequiredMode.REQUIRED)
+        private Integer mesaNumero;
+
+        @Schema(description = "Zona del restaurante: Terraza | Salón Interior | VIP", example = "Salón Interior")
+        private String zona;
+
+        @Schema(description = "Nombre del cliente", example = "Ricardo Palma", requiredMode = Schema.RequiredMode.REQUIRED)
+        private String cliente;
+
+        @Schema(description = "Correo del cliente", example = "ricardo@test.com", requiredMode = Schema.RequiredMode.REQUIRED)
+        private String email;
+
+        @Schema(description = "Teléfono del cliente (exactamente 9 dígitos)", example = "987777888")
+        private Long tel;
+
+        @Schema(description = "Fecha de la reserva (YYYY-MM-DD)", example = "2026-07-20", requiredMode = Schema.RequiredMode.REQUIRED)
+        private String fecha;
+
+        @Schema(description = "Hora de la reserva (HH:mm)", example = "20:00", requiredMode = Schema.RequiredMode.REQUIRED)
+        private String hora;
+
+        @Schema(description = "Número de personas", example = "3")
+        private Integer personas;
+
+        @Schema(description = "Notas adicionales del cliente", example = "Sin cebolla en todos los platos")
+        private String notas;
+
+        public Long    getRestaurantId()          { return restaurantId; }
+        public void    setRestaurantId(Long v)    { this.restaurantId = v; }
+        public Integer getMesaNumero()            { return mesaNumero; }
+        public void    setMesaNumero(Integer v)   { this.mesaNumero = v; }
+        public String  getZona()                  { return zona; }
+        public void    setZona(String v)          { this.zona = v; }
+        public String  getCliente()               { return cliente; }
+        public void    setCliente(String v)       { this.cliente = v; }
+        public String  getEmail()                 { return email; }
+        public void    setEmail(String v)         { this.email = v; }
+        public Long    getTel()                   { return tel; }
+        public void    setTel(Long v)             { this.tel = v; }
+        public String  getFecha()                 { return fecha; }
+        public void    setFecha(String v)         { this.fecha = v; }
+        public String  getHora()                  { return hora; }
+        public void    setHora(String v)          { this.hora = v; }
+        public Integer getPersonas()              { return personas; }
+        public void    setPersonas(Integer v)     { this.personas = v; }
+        public String  getNotas()                 { return notas; }
+        public void    setNotas(String v)         { this.notas = v; }
+
+        public Map<String, Object> toMap() {
+            Map<String, Object> map = new HashMap<>();
+            map.put("restaurantId", restaurantId);
+            map.put("tableNumero",  mesaNumero);   
+            if (zona     != null) map.put("zona",     zona);
+            if (cliente  != null) map.put("cliente",  cliente);
+            if (email    != null) map.put("email",    email);
+            if (tel      != null) map.put("tel",      tel);
+            if (fecha    != null) map.put("fecha",    fecha);
+            if (hora     != null) map.put("hora",     hora);
+            if (personas != null) map.put("personas", personas);
+            if (notas    != null) map.put("notas",    notas);
+            return map;
+        }
+    }
+
+    // ── Endpoints ────────────────────────────────────────────────────────────
 
     @Operation(summary = "Crear mesa",
                description = "Crea una nueva mesa para el restaurante. Requiere rol PERSONAL o ADMINISTRADOR.")
