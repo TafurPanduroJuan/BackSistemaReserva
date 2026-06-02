@@ -117,6 +117,8 @@ public class SecurityConfig {
 
                         // ── ADMINISTRADOR: gestión de usuarios ────────────────────────
 
+                        // ── ADMINISTRADOR: gestión de usuarios (resto del CRUD) ───────
+
                         .requestMatchers("/api/users/**").hasRole("ADMINISTRADOR")
 
                         // ── PERSONAL y ADMINISTRADOR: editar restaurante ──────────────
