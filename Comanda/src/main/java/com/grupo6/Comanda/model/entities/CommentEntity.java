@@ -1,7 +1,7 @@
 package com.grupo6.Comanda.model.entities;
 
 import jakarta.persistence.*;
-
+import com.fasterxml.jackson.annotation.JsonProperty;
 @Entity
 @Table(name = "comments")
 public class CommentEntity {
@@ -9,6 +9,7 @@ public class CommentEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private Long id;
 
     @ManyToOne
@@ -24,10 +25,6 @@ public class CommentEntity {
     @Column(name = "telefono")
     private String telefono;
 
-    /**
-     * SQLite schema stores this as lowercase text: comentario | reclamo | experiencia
-     * We store it as a plain String to match the DB CHECK constraint.
-     */
     @Column(name = "tipo", nullable = false)
     private String tipo; // comentario | reclamo | experiencia
 
