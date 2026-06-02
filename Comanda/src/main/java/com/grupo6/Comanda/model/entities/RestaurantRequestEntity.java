@@ -46,6 +46,10 @@ public class RestaurantRequestEntity {
     @Column(name = "descripcion", nullable = false)
     private String descripcion;
 
+    @Schema(description = "Slogan o mensaje personalizado del restaurante", example = "El mejor sabor norteño")
+    @Column(name = "mensaje_personalizado")
+    private String mensajePersonalizado;
+
     @Schema(description = "Fecha de la solicitud (ISO-8601)", example = "2026-06-01", accessMode = Schema.AccessMode.READ_ONLY)
     @Column(name = "fecha", nullable = false)
     private String fecha;
@@ -80,6 +84,9 @@ public class RestaurantRequestEntity {
 
     public String getDescripcion() { return descripcion; }
     public void setDescripcion(String descripcion) { this.descripcion = descripcion; }
+
+    public String getMensajePersonalizado() { return mensajePersonalizado; }
+    public void setMensajePersonalizado(String mensajePersonalizado) { this.mensajePersonalizado = mensajePersonalizado; }
 
     public String getFecha() { return fecha; }
     public void setFecha(String fecha) { this.fecha = fecha; }
