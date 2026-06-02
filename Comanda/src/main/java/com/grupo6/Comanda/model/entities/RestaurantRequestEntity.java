@@ -50,6 +50,14 @@ public class RestaurantRequestEntity {
     @Column(name = "mensaje_personalizado")
     private String mensajePersonalizado;
 
+    @Schema(description = "Hora de apertura", example = "12:00")
+    @Column(name = "horario_apertura")
+    private String horarioApertura;
+
+    @Schema(description = "Hora de cierre", example = "23:00")
+    @Column(name = "horario_cierre")
+    private String horarioCierre;
+
     @Schema(description = "Fecha de la solicitud (ISO-8601)", example = "2026-06-01", accessMode = Schema.AccessMode.READ_ONLY)
     @Column(name = "fecha", nullable = false)
     private String fecha;
@@ -87,6 +95,12 @@ public class RestaurantRequestEntity {
 
     public String getMensajePersonalizado() { return mensajePersonalizado; }
     public void setMensajePersonalizado(String mensajePersonalizado) { this.mensajePersonalizado = mensajePersonalizado; }
+    
+    public String getHorarioApertura() { return horarioApertura; }
+    public void setHorarioApertura(String horarioApertura) { this.horarioApertura = horarioApertura; }
+
+    public String getHorarioCierre() { return horarioCierre; }
+    public void setHorarioCierre(String horarioCierre) { this.horarioCierre = horarioCierre; }
 
     public String getFecha() { return fecha; }
     public void setFecha(String fecha) { this.fecha = fecha; }
