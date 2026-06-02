@@ -30,10 +30,9 @@ public class RestaurantRequestEntity {
     @Column(name = "tipo", nullable = false)
     private String tipo;
 
-    @Schema(description = "Ciudad donde se ubicará el restaurante", example = "Lima")
-    @Column(name = "ciudad", nullable = false)
-    private String ciudad;
-
+   @Schema(description = "Distrito donde se ubicará el restaurante", example = "Miraflores")
+    @Column(name = "distrito", nullable = false)
+    private String distrito;
 
     @Schema(description = "Teléfono de contacto (exactamente 9 dígitos)", example = "987654321")
     @Column(name = "telefono", nullable = false)
@@ -66,8 +65,8 @@ public class RestaurantRequestEntity {
     public String getTipo() { return tipo; }
     public void setTipo(String tipo) { this.tipo = tipo; }
 
-    public String getCiudad() { return ciudad; }
-    public void setCiudad(String ciudad) { this.ciudad = ciudad; }
+    public String getDistrito() { return distrito; }
+    public void setDistrito(String distrito) { this.distrito = distrito; }
 
     public Long getTelefono() { return telefono; }
     public void setTelefono(Long telefono) { this.telefono = telefono; }
