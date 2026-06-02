@@ -185,6 +185,10 @@ CREATE INDEX idx_comments_restaurant      ON comments(restaurant_id);
 CREATE INDEX idx_comments_leido           ON comments(leido);
 CREATE INDEX idx_restaurant_requests_est  ON restaurant_requests(estado);
 
+-- Renombrar ciudad -> distrito
+
+ALTER TABLE restaurant_requests RENAME COLUMN ciudad TO distrito;
+
 -- -------------------------------------------------------------
 -- 10. DATOS INICIALES  (seed — equivalente al DataInitializer)
 -- -------------------------------------------------------------
