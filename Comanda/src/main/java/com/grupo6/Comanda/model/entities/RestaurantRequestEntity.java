@@ -30,10 +30,13 @@ public class RestaurantRequestEntity {
     @Column(name = "tipo", nullable = false)
     private String tipo;
 
-    @Schema(description = "Ciudad donde se ubicará el restaurante", example = "Lima")
-    @Column(name = "ciudad", nullable = false)
-    private String ciudad;
+    @Schema(description = "Distrito donde se ubicará el restaurante", example = "Miraflores")
+    @Column(name = "distrito", nullable = false)
+    private String distrito;
 
+    @Schema(description = "Dirección exacta del restaurante", example = "Av. Larco 123")
+    @Column(name = "direccion")
+    private String direccion;
 
     @Schema(description = "Teléfono de contacto (exactamente 9 dígitos)", example = "987654321")
     @Column(name = "telefono", nullable = false)
@@ -42,6 +45,18 @@ public class RestaurantRequestEntity {
     @Schema(description = "Descripción o mensaje adicional del solicitante", example = "Restaurante familiar con 10 años de experiencia")
     @Column(name = "descripcion", nullable = false)
     private String descripcion;
+
+    @Schema(description = "Slogan o mensaje personalizado del restaurante", example = "El mejor sabor norteño")
+    @Column(name = "mensaje_personalizado")
+    private String mensajePersonalizado;
+
+    @Schema(description = "Hora de apertura", example = "12:00")
+    @Column(name = "horario_apertura")
+    private String horarioApertura;
+
+    @Schema(description = "Hora de cierre", example = "23:00")
+    @Column(name = "horario_cierre")
+    private String horarioCierre;
 
     @Schema(description = "Fecha de la solicitud (ISO-8601)", example = "2026-06-01", accessMode = Schema.AccessMode.READ_ONLY)
     @Column(name = "fecha", nullable = false)
@@ -66,14 +81,26 @@ public class RestaurantRequestEntity {
     public String getTipo() { return tipo; }
     public void setTipo(String tipo) { this.tipo = tipo; }
 
-    public String getCiudad() { return ciudad; }
-    public void setCiudad(String ciudad) { this.ciudad = ciudad; }
+    public String getDistrito() { return distrito; }
+    public void setDistrito(String distrito) { this.distrito = distrito; }
+
+    public String getDireccion() { return direccion; }
+    public void setDireccion(String direccion) { this.direccion = direccion; }
 
     public Long getTelefono() { return telefono; }
     public void setTelefono(Long telefono) { this.telefono = telefono; }
 
     public String getDescripcion() { return descripcion; }
     public void setDescripcion(String descripcion) { this.descripcion = descripcion; }
+
+    public String getMensajePersonalizado() { return mensajePersonalizado; }
+    public void setMensajePersonalizado(String mensajePersonalizado) { this.mensajePersonalizado = mensajePersonalizado; }
+    
+    public String getHorarioApertura() { return horarioApertura; }
+    public void setHorarioApertura(String horarioApertura) { this.horarioApertura = horarioApertura; }
+
+    public String getHorarioCierre() { return horarioCierre; }
+    public void setHorarioCierre(String horarioCierre) { this.horarioCierre = horarioCierre; }
 
     public String getFecha() { return fecha; }
     public void setFecha(String fecha) { this.fecha = fecha; }

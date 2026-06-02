@@ -122,15 +122,19 @@ public class RestaurantsServiceImpl implements RestaurantsService {
                 RestaurantEntity r = new RestaurantEntity();
                 r.setNombre(req.getNombre());
                 r.setTipo(req.getTipo());
-                r.setDistrito(req.getCiudad());
-                r.setDireccion("");
-                r.setMensajePersonalizado(req.getDescripcion());
+                r.setDistrito(req.getDistrito());
+                r.setDireccion(req.getDireccion() != null ? req.getDireccion() : "");
+                r.setMensajePersonalizado(
+                    req.getMensajePersonalizado() != null
+                        ? req.getMensajePersonalizado()
+                        : req.getDescripcion()
+                );
                 r.setMesas(0);
-                r.setTelefono(req.getTelefono());   
+                r.setTelefono(req.getTelefono());
                 r.setEmail(req.getEmail());
                 r.setImagen(null);
-                r.setHorarioApertura("");
-                r.setHorarioCierre("");
+                r.setHorarioApertura(req.getHorarioApertura() != null ? req.getHorarioApertura() : "");
+                r.setHorarioCierre(req.getHorarioCierre() != null ? req.getHorarioCierre() : "");
                 restaurantRepository.save(r);
             }
 
