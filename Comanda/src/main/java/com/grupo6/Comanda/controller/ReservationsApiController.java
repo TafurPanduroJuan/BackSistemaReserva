@@ -6,6 +6,7 @@ import com.grupo6.Comanda.repository.ReservationRepository;
 import com.grupo6.Comanda.service.ReservationsService;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
@@ -13,10 +14,10 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Endpoints used by the React frontend (Reservas.jsx intranet page):
+ * Endpoints used by the React frontend:
  *
- *   GET    /api/reservations?restaurantId=&fecha=&estado=   → filtered list
- *   GET    /api/reservations?restaurantId=                  → all for a restaurant
+ *   GET    /api/reservations?restaurantId=&fecha=&estado=   → filtered list (admin/personal)
+ *   GET    /api/reservations/me                             → reservas del usuario autenticado
  *   PATCH  /api/reservations/{id}/status                    → update status
  */
 @RestController
@@ -33,6 +34,9 @@ public class ReservationsApiController {
         this.reservationRepository = reservationRepository;
     }
 
+    /**
+     * Listado filtrado para intranet (admin / personal).
+     */
     @GetMapping
     public ResponseEntity<List<ReservationEntity>> getReservations(
             @RequestParam("restaurantId") Long restaurantId,
@@ -46,9 +50,21 @@ public class ReservationsApiController {
     }
 
     /**
-     * Update reservation status.
+     * Reservas del usuario autenticado.
+     * Filtra por el email extraído del JWT.
+     */
+    @GetMapping("/me")
+    public ResponseEntity<List<ReservationEntity>> getMyReservations(
+            Authentication authentication) {
+        String email = authentication.getName(); // email del JWT
+        List<ReservationEntity> reservas = reservationRepository.findByEmail(email);
+        return ResponseEntity.ok(reservas);
+    }
+
+    /**
+     * Actualizar estado de una reserva.
      * Body: { "estado": "confirmada" }
-     * Valid values: pendiente | confirmada | cancelada | cancelada_cliente
+     * Valores válidos: pendiente | confirmada | cancelada | cancelada_cliente
      */
     @PatchMapping("/{id}/status")
     public ResponseEntity<Map<String, Object>> updateStatus(
