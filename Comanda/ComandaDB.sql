@@ -105,7 +105,7 @@ CREATE TABLE restaurants (
     mesas                 INTEGER         NOT NULL CHECK (mesas > 0),
     telefono              VARCHAR(20)     NOT NULL,
     email                 VARCHAR(200)    NOT NULL,
-    imagen                VARCHAR(500),
+    imagen                TEXT,
     horario_apertura      VARCHAR(10)     NOT NULL,
     horario_cierre        VARCHAR(10)     NOT NULL
 );
@@ -212,6 +212,16 @@ VALUES (
     NULL,
     CURRENT_DATE
 );
+
+-- =============================================================
+--  MIGRACIONES  (ejecutar una vez en BD existente en Render)
+-- =============================================================
+
+-- Hibernate con ddl-auto=update NO altera columnas ya existentes.
+-- imagen fue creada como VARCHAR(500) y causaba error 500 al guardar
+-- URLs largas o cualquier string > 255 chars. Ejecutar esto en Render.
+ALTER TABLE restaurants
+    ALTER COLUMN imagen TYPE TEXT;
 
 -- =============================================================
 --  FIN DEL SCRIPT  –  ComandaDB
