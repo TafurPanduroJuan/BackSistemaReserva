@@ -21,7 +21,9 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Configuration
 @EnableMethodSecurity
@@ -54,8 +56,8 @@ public class SecurityConfig {
 
         List<String> origins = Arrays.stream(allowedOriginsRaw.split(","))
                 .map(String::trim)
-                .filter(s -> !s.isBlank())
-                .toList();
+                .filter(s -> !s.isEmpty())
+                .collect(Collectors.toList());
 
         // Si hay alguna URL de Vercel configurada, también aceptar el patrón de previews
         boolean hasVercel = origins.stream().anyMatch(o -> o.contains("vercel.app"));
