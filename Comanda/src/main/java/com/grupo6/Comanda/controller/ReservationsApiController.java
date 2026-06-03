@@ -2,11 +2,14 @@ package com.grupo6.Comanda.controller;
 
 import com.grupo6.Comanda.controller.dto.UpdateStatusRequest;
 import com.grupo6.Comanda.model.entities.ReservationEntity;
+import com.grupo6.Comanda.model.entities.TableEntity;
 import com.grupo6.Comanda.repository.ReservationRepository;
+import com.grupo6.Comanda.repository.TableRepository;
 import com.grupo6.Comanda.service.ReservationsService;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
@@ -27,11 +30,14 @@ public class ReservationsApiController {
 
     private final ReservationsService service;
     private final ReservationRepository reservationRepository;
+    private final TableRepository tableRepository;
 
     public ReservationsApiController(ReservationsService service,
-                                     ReservationRepository reservationRepository) {
+                                     ReservationRepository reservationRepository,
+                                     TableRepository tableRepository) {
         this.service = service;
         this.reservationRepository = reservationRepository;
+        this.tableRepository = tableRepository;
     }
 
     /**
@@ -66,6 +72,7 @@ public class ReservationsApiController {
      * Body: { "estado": "confirmada" }
      * Valores válidos: pendiente | confirmada | cancelada | cancelada_cliente
      */
+    @Transactional
     @PatchMapping("/{id}/status")
     public ResponseEntity<Map<String, Object>> updateStatus(
             @PathVariable Long id,
@@ -81,12 +88,25 @@ public class ReservationsApiController {
 
         return reservationRepository.findById(id)
                 .map(res -> {
-                    res.setEstado(estadoFinal.toLowerCase());
+                    String nuevoEstado = estadoFinal.toLowerCase();
+                    res.setEstado(nuevoEstado);
                     reservationRepository.save(res);
+
+                    // Si la reserva se cancela (por admin o por cliente), liberar la mesa
+                    boolean esCancelacion = nuevoEstado.startsWith("cancelada");
+                    if (esCancelacion && res.getMesaNumero() != null && res.getRestaurant() != null) {
+                        tableRepository
+                            .findByRestaurant_IdAndNumero(res.getRestaurant().getId(), res.getMesaNumero())
+                            .ifPresent(mesa -> {
+                                mesa.setEstado("disponible");
+                                tableRepository.save(mesa);
+                            });
+                    }
+
                     Map<String, Object> resp = new HashMap<>();
                     resp.put("message", "Status updated");
                     resp.put("id", id);
-                    resp.put("estado", estadoFinal);
+                    resp.put("estado", nuevoEstado);
                     return ResponseEntity.<Map<String, Object>>ok(resp);
                 })
                 .orElseGet(() -> ResponseEntity.<Map<String, Object>>notFound().build());
