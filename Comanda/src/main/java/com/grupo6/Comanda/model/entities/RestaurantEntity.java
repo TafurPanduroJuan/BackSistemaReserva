@@ -26,19 +26,20 @@ public class RestaurantEntity {
     @Column(name = "distrito")
     private String distrito;
 
+    // FIX: direccion puede ser larga (nombre de calle + número + referencia)
     @Schema(description = "Dirección exacta", example = "Av. Larco 456, Miraflores")
-    @Column(name = "direccion")
+    @Column(name = "direccion", columnDefinition = "TEXT")
     private String direccion;
 
+    // FIX: mensaje personalizado puede superar 255 chars (slogan, descripción)
     @Schema(description = "Mensaje de bienvenida personalizado", example = "¡Te esperamos para una experiencia única!")
-    @Column(name = "mensaje_personalizado")
+    @Column(name = "mensaje_personalizado", columnDefinition = "TEXT")
     private String mensajePersonalizado;
 
     @Schema(description = "Número total de mesas disponibles", example = "20")
     @Column(name = "mesas")
     private Integer mesas;
 
-    
     @Schema(description = "Teléfono del restaurante (exactamente 9 dígitos)", example = "987654321")
     @Column(name = "telefono")
     private Long telefono;
@@ -47,15 +48,16 @@ public class RestaurantEntity {
     @Column(name = "email")
     private String email;
 
+    // FIX: imagen es una URL que puede superar 255 chars (URLs de CDN/Cloudinary son largas)
     @Schema(description = "URL de la imagen del restaurante", example = "https://storage.example.com/img/bella-italia.jpg")
-    @Column(name = "imagen")
+    @Column(name = "imagen", columnDefinition = "TEXT")
     private String imagen;
 
-    @Schema(description = "Hora de apertura", example = "12:00 PM")
+    @Schema(description = "Hora de apertura", example = "12:00")
     @Column(name = "horario_apertura")
     private String horarioApertura;
 
-    @Schema(description = "Hora de cierre", example = "11:00 PM")
+    @Schema(description = "Hora de cierre", example = "23:00")
     @Column(name = "horario_cierre")
     private String horarioCierre;
 
