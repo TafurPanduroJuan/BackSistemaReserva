@@ -32,7 +32,6 @@ public class SecurityConfig {
     private final JwtService jwtService;
     private final CustomUserDetailsService userDetailsService;
 
-    // Lee los orígenes permitidos desde application.properties
     @Value("${comanda.cors.allowed-origins:http://localhost:5173}")
     private String allowedOriginsRaw;
 
@@ -46,10 +45,6 @@ public class SecurityConfig {
         return new BCryptPasswordEncoder();
     }
 
-    /**
-     * CORS global — debe registrarse aquí (no en application.properties)
-     * porque Spring Security intercepta antes que Spring MVC.
-     */
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
@@ -59,7 +54,6 @@ public class SecurityConfig {
                 .filter(s -> !s.isEmpty())
                 .collect(Collectors.toList());
 
-        // Si hay alguna URL de Vercel configurada, también aceptar el patrón de previews
         boolean hasVercel = origins.stream().anyMatch(o -> o.contains("vercel.app"));
         if (hasVercel) {
             config.setAllowedOriginPatterns(List.of("*"));
@@ -112,23 +106,32 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/tables/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/tables/reserve").permitAll()
 
-                        // ── Cualquier usuario autenticado: ver su propio perfil ───────
+                        // ── FIX: /api/users/me debe ir ANTES de /api/users/** ─────────
+                        // Si /api/users/** se evalúa primero, captura también /me
+                        // y el usuario normal recibe 403 al intentar ver su perfil.
                         .requestMatchers(HttpMethod.GET, "/api/users/me").authenticated()
                         .requestMatchers(HttpMethod.PUT, "/api/users/me").authenticated()
 
-                        // ── Tarea 3.5: reservas del usuario autenticado ───────────────
+                        // ── Reservas del usuario autenticado ──────────────────────────
                         .requestMatchers(HttpMethod.GET, "/api/reservations/me").authenticated()
 
                         // ── Usuario autenticado: cancelar su propia reserva ───────────
                         .requestMatchers(HttpMethod.PATCH, "/api/reservations/*/status").authenticated()
 
                         // ── ADMINISTRADOR: gestión de solicitudes ─────────────────────
-                        .requestMatchers("/api/restaurants/requests/**").hasRole("ADMINISTRADOR")
+                        // FIX: usar path exacto con HttpMethod para evitar que capture /requests POST (público)
+                        .requestMatchers(HttpMethod.GET, "/api/restaurants/requests").hasRole("ADMINISTRADOR")
+                        .requestMatchers(HttpMethod.PUT, "/api/restaurants/requests/**").hasRole("ADMINISTRADOR")
 
                         // ── ADMINISTRADOR: eliminar restaurantes ──────────────────────
                         .requestMatchers(HttpMethod.DELETE, "/api/restaurants/**").hasRole("ADMINISTRADOR")
 
-                        // ── ADMINISTRADOR: gestión de usuarios (resto del CRUD) ───────
+                        // ── ADMINISTRADOR: crear restaurante desde intranet ───────────
+                        .requestMatchers(HttpMethod.POST, "/api/restaurants").hasRole("ADMINISTRADOR")
+
+                        // ── FIX: /api/users/** DESPUÉS de /api/users/me ───────────────
+                        // Ahora las rutas /me ya están cubiertas arriba, esta regla
+                        // solo captura /api/users, /api/users/{id}, /api/users/{id}/role
                         .requestMatchers("/api/users/**").hasRole("ADMINISTRADOR")
 
                         // ── PERSONAL y ADMINISTRADOR: editar restaurante ──────────────
