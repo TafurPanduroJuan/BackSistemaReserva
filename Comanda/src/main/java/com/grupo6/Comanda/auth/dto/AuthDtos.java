@@ -138,6 +138,13 @@ public final class AuthDtos {
         @Schema(description = "Correo del usuario", example = "diego@example.com")
         public String email;
 
+        // FIX: El frontend (AuthContext.normalizeSession) lee data.restaurante para
+        // saber qué restaurante gestiona un usuario con rol PERSONAL.
+        // Sin este campo, el contexto lo guarda como null y el personal no puede
+        // filtrar sus reservas / mesas correctamente.
+        @Schema(description = "Restaurante asignado (solo rol PERSONAL)", example = "La Bella Italia")
+        public String restaurante;
+
         public AuthResponse() {}
 
         public AuthResponse(String token, String rol) {
@@ -153,15 +160,27 @@ public final class AuthDtos {
             this.email  = email;
         }
 
-        public String getToken()  { return token; }
-        public void   setToken(String token)   { this.token = token; }
-        public String getRol()    { return rol; }
-        public void   setRol(String rol)       { this.rol = rol; }
-        public Long   getId()     { return id; }
-        public void   setId(Long id)           { this.id = id; }
-        public String getNombre() { return nombre; }
-        public void   setNombre(String nombre) { this.nombre = nombre; }
-        public String getEmail()  { return email; }
-        public void   setEmail(String email)   { this.email = email; }
+        // FIX: constructor completo con restaurante
+        public AuthResponse(String token, String rol, Long id, String nombre, String email, String restaurante) {
+            this.token       = token;
+            this.rol         = rol;
+            this.id          = id;
+            this.nombre      = nombre;
+            this.email       = email;
+            this.restaurante = restaurante;
+        }
+
+        public String getToken()        { return token; }
+        public void   setToken(String token)             { this.token = token; }
+        public String getRol()          { return rol; }
+        public void   setRol(String rol)                 { this.rol = rol; }
+        public Long   getId()           { return id; }
+        public void   setId(Long id)    { this.id = id; }
+        public String getNombre()       { return nombre; }
+        public void   setNombre(String nombre)           { this.nombre = nombre; }
+        public String getEmail()        { return email; }
+        public void   setEmail(String email)             { this.email = email; }
+        public String getRestaurante()  { return restaurante; }
+        public void   setRestaurante(String restaurante) { this.restaurante = restaurante; }
     }
 }
