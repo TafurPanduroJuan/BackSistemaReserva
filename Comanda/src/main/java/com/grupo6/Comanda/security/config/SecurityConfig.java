@@ -21,7 +21,6 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
-import java.util.Arrays;
 import java.util.List;
 
 @Configuration
@@ -53,8 +52,18 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
 
-        List<String> origins = Arrays.asList(allowedOriginsRaw.split(","));
-        config.setAllowedOrigins(origins);
+        List<String> origins = Arrays.stream(allowedOriginsRaw.split(","))
+                .map(String::trim)
+                .filter(s -> !s.isBlank())
+                .toList();
+
+        // Si hay alguna URL de Vercel configurada, también aceptar el patrón de previews
+        boolean hasVercel = origins.stream().anyMatch(o -> o.contains("vercel.app"));
+        if (hasVercel) {
+            config.setAllowedOriginPatterns(List.of("*"));
+        } else {
+            config.setAllowedOrigins(origins);
+        }
 
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(List.of("*"));
@@ -108,6 +117,9 @@ public class SecurityConfig {
                         // ── Tarea 3.5: reservas del usuario autenticado ───────────────
                         .requestMatchers(HttpMethod.GET, "/api/reservations/me").authenticated()
 
+                        // ── Usuario autenticado: cancelar su propia reserva ───────────
+                        .requestMatchers(HttpMethod.PATCH, "/api/reservations/*/status").authenticated()
+
                         // ── ADMINISTRADOR: gestión de solicitudes ─────────────────────
                         .requestMatchers("/api/restaurants/requests/**").hasRole("ADMINISTRADOR")
 
@@ -127,8 +139,6 @@ public class SecurityConfig {
 
                         // ── PERSONAL y ADMINISTRADOR: ver y gestionar reservas ────────
                         .requestMatchers(HttpMethod.GET, "/api/reservations/**").hasAnyRole("ADMINISTRADOR", "PERSONAL")
-                        .requestMatchers(HttpMethod.PATCH, "/api/reservations/**")
-                        .hasAnyRole("ADMINISTRADOR", "PERSONAL")
 
                         // ── USUARIO: ver su propia cuenta ────────────────────────────
                         .requestMatchers("/api/account/**").hasAnyRole("USUARIO", "ADMINISTRADOR")

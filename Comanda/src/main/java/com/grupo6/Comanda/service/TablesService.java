@@ -13,5 +13,6 @@ public interface TablesService {
     String reserveTable(java.util.Map<String, Object> payload);
 
     TableEntity createTable(Long restaurantId, TableEntity table);
-}
 
+    void deleteTable(Long tableId);
+}
