@@ -1,5 +1,6 @@
 package com.grupo6.Comanda.model.entities;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
 
@@ -27,7 +28,6 @@ public class ReservationEntity {
     @Column(name = "email", nullable = false)
     private String email;
 
-    
     @Schema(description = "Teléfono del cliente (exactamente 9 dígitos)", example = "987654321")
     @Column(name = "tel", nullable = false)
     private Long tel;
@@ -48,7 +48,7 @@ public class ReservationEntity {
     @Column(name = "mesa_numero", nullable = false)
     private Integer mesaNumero;
 
-    @Schema(description = "Zona del restaurante (interior / exterior / terraza)", example = "interior")
+    @Schema(description = "Zona del restaurante", example = "Salón Interior")
     @Column(name = "zona", nullable = false)
     private String zona;
 
@@ -84,6 +84,8 @@ public class ReservationEntity {
     public Integer getPersonas() { return personas; }
     public void setPersonas(Integer personas) { this.personas = personas; }
 
+    // mesaNumero serialized as both mesaNumero and mesa for compatibility
+    @JsonProperty("mesaNumero")
     public Integer getMesaNumero() { return mesaNumero; }
     public void setMesaNumero(Integer mesaNumero) { this.mesaNumero = mesaNumero; }
 

@@ -132,4 +132,12 @@ public class TablesServiceImpl implements TablesService {
         }
         return Long.parseLong(telStr);
     }
+
+    @Override
+    public void deleteTable(Long tableId) {
+        if (!tableRepository.existsById(tableId)) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Mesa no encontrada");
+        }
+        tableRepository.deleteById(tableId);
+    }
 }

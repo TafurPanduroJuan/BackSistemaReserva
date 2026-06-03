@@ -1,5 +1,7 @@
 package com.grupo6.Comanda.model.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.grupo6.Comanda.model.enums.UserRole;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
@@ -23,11 +25,11 @@ public class UserEntity {
     @Column(name = "email", nullable = false, unique = true)
     private String email;
 
-    @Schema(hidden = true)   // no exponer el hash en la UI de Swagger
+    @JsonIgnore
     @Column(name = "password_hash", nullable = false)
     private String passwordHash;
 
-    @Schema(description = "Rol del usuario", example = "USUARIO")
+    @Schema(description = "Rol del usuario", example = "usuario")
     @Enumerated(EnumType.STRING)
     @Column(name = "rol", nullable = false)
     private UserRole role;
@@ -36,11 +38,10 @@ public class UserEntity {
     @Column(name = "restaurante")
     private String restaurant;
 
-    @Schema(description = "URL del avatar del usuario", example = "https://storage.example.com/avatars/diego.jpg")
+    @Schema(description = "URL del avatar del usuario")
     @Column(name = "avatar")
     private String avatar;
 
-    
     @Schema(description = "Teléfono de contacto (exactamente 9 dígitos)", example = "987654321")
     @Column(name = "telefono")
     private Long telefono;
@@ -52,6 +53,8 @@ public class UserEntity {
     public Long   getId()           { return id; }
     public void   setId(Long id)    { this.id = id; }
 
+    // nombre — serialized as "nombre" for the React frontend
+    @JsonProperty("nombre")
     public String getName()         { return name; }
     public void   setName(String name) { this.name = name; }
 
@@ -61,9 +64,15 @@ public class UserEntity {
     public String getPasswordHash() { return passwordHash; }
     public void   setPasswordHash(String passwordHash) { this.passwordHash = passwordHash; }
 
+    // rol — serialized as "rol" (lowercase) for the React frontend
+    @JsonProperty("rol")
+    public String getRolAsString()  { return role != null ? role.name().toLowerCase() : null; }
+
     public UserRole getRole()       { return role; }
     public void     setRole(UserRole role) { this.role = role; }
 
+    // restaurante — serialized as "restaurante" for the React frontend
+    @JsonProperty("restaurante")
     public String getRestaurant()   { return restaurant; }
     public void   setRestaurant(String restaurant) { this.restaurant = restaurant; }
 
@@ -73,6 +82,7 @@ public class UserEntity {
     public Long   getTelefono()     { return telefono; }
     public void   setTelefono(Long telefono) { this.telefono = telefono; }
 
+    @JsonProperty("fechaRegistro")
     public String getCreatedAt()    { return createdAt; }
     public void   setCreatedAt(String createdAt) { this.createdAt = createdAt; }
 }
