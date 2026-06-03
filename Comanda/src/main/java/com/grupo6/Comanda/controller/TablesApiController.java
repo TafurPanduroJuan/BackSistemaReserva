@@ -146,4 +146,12 @@ public class TablesApiController {
         String result = tablesService.reserveTable(body.toMap());
         return ResponseEntity.ok(Map.of("message", result));
     }
+
+    @Operation(summary = "Eliminar mesa",
+               description = "Elimina una mesa por su ID. Requiere rol PERSONAL o ADMINISTRADOR.")
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteTable(@PathVariable Long id) {
+        tablesService.deleteTable(id);
+        return ResponseEntity.noContent().build();
+    }
 }
