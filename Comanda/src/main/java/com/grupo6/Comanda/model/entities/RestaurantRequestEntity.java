@@ -34,20 +34,23 @@ public class RestaurantRequestEntity {
     @Column(name = "distrito", nullable = false)
     private String distrito;
 
+    // FIX: dirección puede superar 255 chars
     @Schema(description = "Dirección exacta del restaurante", example = "Av. Larco 123")
-    @Column(name = "direccion")
+    @Column(name = "direccion", columnDefinition = "TEXT")
     private String direccion;
 
     @Schema(description = "Teléfono de contacto (exactamente 9 dígitos)", example = "987654321")
     @Column(name = "telefono", nullable = false)
     private Long telefono;
 
+    // FIX: descripcion es texto libre, puede ser largo
     @Schema(description = "Descripción o mensaje adicional del solicitante", example = "Restaurante familiar con 10 años de experiencia")
-    @Column(name = "descripcion", nullable = false)
+    @Column(name = "descripcion", nullable = false, columnDefinition = "TEXT")
     private String descripcion;
 
+    // FIX: mensaje_personalizado puede superar 255 chars
     @Schema(description = "Slogan o mensaje personalizado del restaurante", example = "El mejor sabor norteño")
-    @Column(name = "mensaje_personalizado")
+    @Column(name = "mensaje_personalizado", columnDefinition = "TEXT")
     private String mensajePersonalizado;
 
     @Schema(description = "Hora de apertura", example = "12:00")
@@ -95,7 +98,7 @@ public class RestaurantRequestEntity {
 
     public String getMensajePersonalizado() { return mensajePersonalizado; }
     public void setMensajePersonalizado(String mensajePersonalizado) { this.mensajePersonalizado = mensajePersonalizado; }
-    
+
     public String getHorarioApertura() { return horarioApertura; }
     public void setHorarioApertura(String horarioApertura) { this.horarioApertura = horarioApertura; }
 

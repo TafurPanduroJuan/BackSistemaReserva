@@ -47,12 +47,15 @@ public class AuthService {
 
         String token = jwtService.generateToken(buildSpringUser(user));
 
+        // FIX: incluir restaurante en la respuesta para que el frontend
+        // (AuthContext.normalizeSession → data.restaurante) lo reciba correctamente.
         return new AuthResponse(
                 token,
                 user.getRole().name().toLowerCase(),
                 user.getId(),
                 user.getName(),
-                user.getEmail()
+                user.getEmail(),
+                user.getRestaurant()   // ← campo añadido
         );
     }
 
@@ -66,7 +69,7 @@ public class AuthService {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Email already registered");
         }
 
-        // CORRECCIÓN: validar teléfono — debe ser exactamente 9 dígitos si se envía
+        // Validar teléfono — debe ser exactamente 9 dígitos si se envía
         if (request.getTelefono() != null) {
             String telStr = String.valueOf(request.getTelefono());
             if (!telStr.matches("\\d{9}")) {
@@ -91,19 +94,22 @@ public class AuthService {
         user.setRole(role);
         user.setPasswordHash(passwordHasher.hash(request.getPassword()));
         user.setRestaurant(request.getRestaurante());
-        user.setTelefono(request.getTelefono());  // Long — puede ser null si no se envió
+        user.setTelefono(request.getTelefono());
         user.setAvatar(null);
         user.setCreatedAt(LocalDate.now().toString());
 
         UserEntity saved = userRepository.save(user);
 
         String token = jwtService.generateToken(buildSpringUser(saved));
+
+        // FIX: incluir restaurante en la respuesta de registro también
         return new AuthResponse(
                 token,
                 saved.getRole().name().toLowerCase(),
                 saved.getId(),
                 saved.getName(),
-                saved.getEmail()
+                saved.getEmail(),
+                saved.getRestaurant()  // ← campo añadido
         );
     }
 
