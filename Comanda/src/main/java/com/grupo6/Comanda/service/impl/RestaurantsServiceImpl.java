@@ -132,7 +132,7 @@ public class RestaurantsServiceImpl implements RestaurantsService {
                 r.setMesas(0);
                 r.setTelefono(req.getTelefono());
                 r.setEmail(req.getEmail());
-                r.setImagen(null);
+                r.setImagen(req.getImagen());
                 r.setHorarioApertura(req.getHorarioApertura() != null ? req.getHorarioApertura() : "");
                 r.setHorarioCierre(req.getHorarioCierre() != null ? req.getHorarioCierre() : "");
                 restaurantRepository.save(r);
