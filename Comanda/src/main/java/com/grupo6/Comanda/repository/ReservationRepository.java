@@ -10,5 +10,6 @@ public interface ReservationRepository extends JpaRepository<ReservationEntity, 
     List<ReservationEntity> findByRestaurant_IdAndFechaAndEstado(Long restaurantId, String fecha, String estado);
     List<ReservationEntity> findByRestaurant_IdAndEstado(Long restaurantId, String estado);
     List<ReservationEntity> findByRestaurant_Id(Long restaurantId);
+     List<ReservationEntity> findByEmail(String email);
 }
 
