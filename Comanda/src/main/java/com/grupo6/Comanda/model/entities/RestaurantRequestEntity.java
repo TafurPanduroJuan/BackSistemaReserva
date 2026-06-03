@@ -53,6 +53,10 @@ public class RestaurantRequestEntity {
     @Column(name = "mensaje_personalizado", columnDefinition = "TEXT")
     private String mensajePersonalizado;
 
+    @Schema(description = "Imagen del restaurante en base64 o URL", example = "data:image/jpeg;base64,...")
+    @Column(name = "imagen", columnDefinition = "TEXT")
+    private String imagen;
+
     @Schema(description = "Hora de apertura", example = "12:00")
     @Column(name = "horario_apertura")
     private String horarioApertura;
@@ -98,6 +102,9 @@ public class RestaurantRequestEntity {
 
     public String getMensajePersonalizado() { return mensajePersonalizado; }
     public void setMensajePersonalizado(String mensajePersonalizado) { this.mensajePersonalizado = mensajePersonalizado; }
+
+    public String getImagen() { return imagen; }
+    public void setImagen(String imagen) { this.imagen = imagen; }
 
     public String getHorarioApertura() { return horarioApertura; }
     public void setHorarioApertura(String horarioApertura) { this.horarioApertura = horarioApertura; }
