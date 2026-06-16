@@ -22,4 +22,6 @@ public interface UsersService {
     ResponseEntity<UserEntity> getMe(UserDetails principal);
 
     ResponseEntity<UserEntity> updateMe(UserDetails principal, UpdateMeRequest body);
+
+    ResponseEntity<Map<String, Object>> resetPassword(Long id, Map<String, String> body);
 }

@@ -6,12 +6,14 @@ import com.grupo6.Comanda.model.enums.UserRole;
 import com.grupo6.Comanda.repository.UserRepository;
 import com.grupo6.Comanda.service.UsersService;
 
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -19,9 +21,11 @@ import java.util.Map;
 public class UsersServiceImpl implements UsersService {
 
     private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
 
-    public UsersServiceImpl(UserRepository userRepository) {
+    public UsersServiceImpl(UserRepository userRepository, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Override
@@ -95,6 +99,24 @@ public class UsersServiceImpl implements UsersService {
             }
 
             return ResponseEntity.ok(userRepository.save(user));
+        }).orElse(ResponseEntity.notFound().build());
+    }
+
+    @Override
+    public ResponseEntity<Map<String, Object>> resetPassword(Long id, Map<String, String> body) {
+        return userRepository.findById(id).map(user -> {
+            String newPassword = body.get("password");
+            if (newPassword == null || newPassword.isBlank()) {
+                Map<String, Object> errorBody = new HashMap<>();
+                errorBody.put("error", "Password no puede estar vacío");
+                return ResponseEntity.<Map<String, Object>>badRequest().body(errorBody);
+            }
+            user.setPasswordHash(passwordEncoder.encode(newPassword));
+            userRepository.save(user);
+            Map<String, Object> successBody = new HashMap<>();
+            successBody.put("message", "Password actualizado correctamente");
+            successBody.put("id", id);
+            return ResponseEntity.<Map<String, Object>>ok(successBody);
         }).orElse(ResponseEntity.notFound().build());
     }
 }
