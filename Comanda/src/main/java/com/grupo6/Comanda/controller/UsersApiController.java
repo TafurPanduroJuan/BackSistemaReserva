@@ -73,4 +73,15 @@ public class UsersApiController {
                                                @RequestBody UpdateMeRequest body) {
         return usersService.updateMe(principal, body);
     }
+
+    /**
+     * Admin resets a user's password.
+     * Body: { "password": "newPassword123" }
+     */
+    @PutMapping("/{id}/reset-password")
+    public ResponseEntity<Map<String, Object>> resetPassword(
+            @PathVariable Long id,
+            @RequestBody Map<String, String> body) {
+        return usersService.resetPassword(id, body);
+    }
 }
