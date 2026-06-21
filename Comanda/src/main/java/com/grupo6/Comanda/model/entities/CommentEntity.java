@@ -78,4 +78,16 @@ public class CommentEntity {
 
     public Boolean getLeido() { return leido; }
     public void setLeido(Boolean leido) { this.leido = leido; }
+
+    @Column(name = "respuesta_restaurante", columnDefinition = "TEXT")
+    private String respuestaRestaurante;
+
+    @Column(name = "fecha_respuesta")
+    private String fechaRespuesta;
+
+    public String getRespuestaRestaurante() { return respuestaRestaurante; }
+    public void setRespuestaRestaurante(String respuestaRestaurante) { this.respuestaRestaurante = respuestaRestaurante; }
+
+    public String getFechaRespuesta() { return fechaRespuesta; }
+    public void setFechaRespuesta(String fechaRespuesta) { this.fechaRespuesta = fechaRespuesta; }
 }
