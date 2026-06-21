@@ -27,4 +27,6 @@ public interface RestaurantsService {
     ResponseEntity<Map<String, Object>> acceptRequest(Long id);
 
     ResponseEntity<Map<String, Object>> rejectRequest(Long id);
+
+    ResponseEntity<RestaurantEntity> toggleCierre(Long id, Map<String, Object> body);
 }
