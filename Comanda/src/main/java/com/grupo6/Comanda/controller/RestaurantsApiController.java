@@ -50,6 +50,14 @@ public class RestaurantsApiController {
         return restaurantsService.update(id, updated);
     }
 
+    @PreAuthorize("hasRole('ADMINISTRADOR') or " +
+            "(hasRole('PERSONAL') and @restaurantSecurityService.esPropietario(authentication, #id))")
+    @PutMapping("/{id}/cierre")
+    public ResponseEntity<RestaurantEntity> toggleCierre(@PathVariable Long id,
+            @RequestBody Map<String, Object> body) {
+        return restaurantsService.toggleCierre(id, body);
+    }
+
     @PreAuthorize("hasRole('ADMINISTRADOR')")          // ← NUEVO
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
