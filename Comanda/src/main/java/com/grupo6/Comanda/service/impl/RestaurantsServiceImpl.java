@@ -13,16 +13,23 @@ import com.grupo6.Comanda.repository.RestaurantRepository;
 import com.grupo6.Comanda.repository.RestaurantRequestRepository;
 import com.grupo6.Comanda.service.RestaurantsService;
 
+import com.grupo6.Comanda.repository.ReservationRepository;
+import com.grupo6.Comanda.model.entities.ReservationEntity;
+import java.time.format.DateTimeFormatter;
+
 @Service
 public class RestaurantsServiceImpl implements RestaurantsService {
 
     private final RestaurantRepository restaurantRepository;
     private final RestaurantRequestRepository requestRepository;
+    private final ReservationRepository reservationRepository;
 
     public RestaurantsServiceImpl(RestaurantRepository restaurantRepository,
-                                  RestaurantRequestRepository requestRepository) {
+            RestaurantRequestRepository requestRepository,
+            ReservationRepository reservationRepository) {
         this.restaurantRepository = restaurantRepository;
-        this.requestRepository    = requestRepository;
+        this.requestRepository = requestRepository;
+        this.reservationRepository = reservationRepository;
     }
 
     @Override
