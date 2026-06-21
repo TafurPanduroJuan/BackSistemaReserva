@@ -61,6 +61,14 @@ public class RestaurantEntity {
     @Column(name = "horario_cierre")
     private String horarioCierre;
 
+    @Schema(description = "Indica si el restaurante está cerrado hoy por algún inconveniente", example = "false")
+    @Column(name = "cerrado_hoy")
+    private Boolean cerradoHoy = false;
+
+    @Schema(description = "Motivo del cierre temporal", example = "Mantenimiento de cocina")
+    @Column(name = "motivo_cierre", columnDefinition = "TEXT")
+    private String motivoCierre;
+
     public Long   getId()           { return id; }
     public void   setId(Long id)    { this.id = id; }
 
@@ -96,4 +104,20 @@ public class RestaurantEntity {
 
     public String getHorarioCierre()   { return horarioCierre; }
     public void   setHorarioCierre(String h) { this.horarioCierre = h; }
+
+    public Boolean getCerradoHoy() {
+        return cerradoHoy;
+    }
+
+    public void setCerradoHoy(Boolean cerradoHoy) {
+        this.cerradoHoy = cerradoHoy;
+    }
+
+    public String getMotivoCierre() {
+        return motivoCierre;
+    }
+
+    public void setMotivoCierre(String motivoCierre) {
+        this.motivoCierre = motivoCierre;
+    }
 }
