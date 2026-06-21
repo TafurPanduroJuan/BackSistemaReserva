@@ -167,7 +167,28 @@ public class RestaurantsServiceImpl implements RestaurantsService {
             restaurant.setCerradoHoy(cerrado != null ? cerrado : false);
             restaurant.setMotivoCierre(cerrado != null && cerrado ? motivo : null);
 
-            return ResponseEntity.ok(restaurantRepository.save(restaurant));
+            RestaurantEntity guardado = restaurantRepository.save(restaurant);
+
+            // Si se está cerrando hoy, cancelar las reservas del día con el motivo
+            if (cerrado != null && cerrado) {
+                String hoy = LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE);
+                List<ReservationEntity> reservasHoy = reservationRepository.findByRestaurant_Id(id);
+
+                for (ReservationEntity reserva : reservasHoy) {
+                    boolean esHoy = hoy.equals(reserva.getFecha());
+                    boolean estaActiva = "pendiente".equals(reserva.getEstado())
+                            || "confirmada".equals(reserva.getEstado());
+
+                    if (esHoy && estaActiva) {
+                        reserva.setEstado("cancelada");
+                        reserva.setMotivoCancelacion(
+                                "El restaurante cerró por: " + (motivo != null ? motivo : "inconvenientes operativos"));
+                        reservationRepository.save(reserva);
+                    }
+                }
+            }
+
+            return ResponseEntity.ok(guardado);
         }).orElse(ResponseEntity.notFound().build());
     }
 }
