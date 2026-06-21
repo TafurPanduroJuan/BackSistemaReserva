@@ -60,6 +60,10 @@ public class ReservationEntity {
     @Column(name = "estado", nullable = false)
     private String estado;
 
+    @Schema(description = "Motivo de la cancelación (si aplica)", example = "El restaurante cerró por mantenimiento")
+    @Column(name = "motivo_cancelacion", columnDefinition = "TEXT")
+    private String motivoCancelacion;
+
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
 
@@ -97,4 +101,7 @@ public class ReservationEntity {
 
     public String getEstado() { return estado; }
     public void setEstado(String estado) { this.estado = estado; }
+
+    public String getMotivoCancelacion() { return motivoCancelacion; }
+    public void setMotivoCancelacion(String motivoCancelacion) { this.motivoCancelacion = motivoCancelacion; }
 }
