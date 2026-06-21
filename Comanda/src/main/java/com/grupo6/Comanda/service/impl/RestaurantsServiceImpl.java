@@ -150,4 +150,17 @@ public class RestaurantsServiceImpl implements RestaurantsService {
             return ResponseEntity.ok(Map.<String, Object>of("message", "Request rejected", "requestId", id));
         }).orElse(ResponseEntity.notFound().build());
     }
+
+    @Override
+    public ResponseEntity<RestaurantEntity> toggleCierre(Long id, Map<String, Object> body) {
+        return restaurantRepository.findById(id).map(restaurant -> {
+            Boolean cerrado = (Boolean) body.get("cerradoHoy");
+            String motivo = (String) body.get("motivoCierre");
+
+            restaurant.setCerradoHoy(cerrado != null ? cerrado : false);
+            restaurant.setMotivoCierre(cerrado != null && cerrado ? motivo : null);
+
+            return ResponseEntity.ok(restaurantRepository.save(restaurant));
+        }).orElse(ResponseEntity.notFound().build());
+    }
 }
