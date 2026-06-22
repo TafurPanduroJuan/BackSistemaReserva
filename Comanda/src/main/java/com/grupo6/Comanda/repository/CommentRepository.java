@@ -10,4 +10,10 @@ public interface CommentRepository extends JpaRepository<CommentEntity, Long> {
     List<CommentEntity> findByRestaurant_IdAndTipo(Long restaurantId, String tipo);
     List<CommentEntity> findByTipo(String tipo);
     Long countByLeidoFalse();
+
+    /** Para el perfil del usuario: comentarios con respuesta del restaurante */
+    List<CommentEntity> findByEmailAndRespuestaRestauranteIsNotNull(String email);
+
+    /** Para el perfil: todos los comentarios del usuario */
+    List<CommentEntity> findByEmail(String email);
 }
