@@ -2,10 +2,10 @@ package com.grupo6.Comanda.controller;
 
 import com.grupo6.Comanda.controller.dto.UpdateStatusRequest;
 import com.grupo6.Comanda.model.entities.ReservationEntity;
-import com.grupo6.Comanda.model.entities.TableEntity;
 import com.grupo6.Comanda.repository.ReservationRepository;
 import com.grupo6.Comanda.repository.TableRepository;
 import com.grupo6.Comanda.service.ReservationsService;
+import com.grupo6.Comanda.service.NotificationService;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -21,7 +21,7 @@ import java.util.Map;
  *
  *   GET    /api/reservations?restaurantId=&fecha=&estado=   → filtered list (admin/personal)
  *   GET    /api/reservations/me                             → reservas del usuario autenticado
- *   PATCH  /api/reservations/{id}/status                    → update status
+ *   PATCH  /api/reservations/{id}/status                    → update status (+ motivoCancelacion)
  */
 @RestController
 @RequestMapping("/api/reservations")
@@ -31,13 +31,16 @@ public class ReservationsApiController {
     private final ReservationsService service;
     private final ReservationRepository reservationRepository;
     private final TableRepository tableRepository;
+    private final NotificationService notificationService;
 
     public ReservationsApiController(ReservationsService service,
                                      ReservationRepository reservationRepository,
-                                     TableRepository tableRepository) {
+                                     TableRepository tableRepository,
+                                     NotificationService notificationService) {
         this.service = service;
         this.reservationRepository = reservationRepository;
         this.tableRepository = tableRepository;
+        this.notificationService = notificationService;
     }
 
     /**
@@ -62,15 +65,17 @@ public class ReservationsApiController {
     @GetMapping("/me")
     public ResponseEntity<List<ReservationEntity>> getMyReservations(
             Authentication authentication) {
-        String email = authentication.getName(); // email del JWT
+        String email = authentication.getName();
         List<ReservationEntity> reservas = reservationRepository.findByEmail(email);
         return ResponseEntity.ok(reservas);
     }
 
     /**
      * Actualizar estado de una reserva.
-     * Body: { "estado": "confirmada" }
+     * Body: { "estado": "cancelada", "motivoCancelacion": "..." }
      * Valores válidos: pendiente | confirmada | cancelada | cancelada_cliente
+     *
+     * Al cancelar (por admin/personal) o rechazar, se envía notificación por email al cliente.
      */
     @Transactional
     @PatchMapping("/{id}/status")
@@ -89,7 +94,14 @@ public class ReservationsApiController {
         return reservationRepository.findById(id)
                 .map(res -> {
                     String nuevoEstado = estadoFinal.toLowerCase();
+                    String estadoAnterior = res.getEstado();
                     res.setEstado(nuevoEstado);
+
+                    // Guardar motivo de cancelación si viene en el body
+                    if (body.getMotivoCancelacion() != null && !body.getMotivoCancelacion().isBlank()) {
+                        res.setMotivoCancelacion(body.getMotivoCancelacion());
+                    }
+
                     reservationRepository.save(res);
 
                     // Si la reserva se cancela (por admin o por cliente), liberar la mesa
@@ -101,6 +113,12 @@ public class ReservationsApiController {
                                 mesa.setEstado("disponible");
                                 tableRepository.save(mesa);
                             });
+                    }
+
+                    // Enviar notificación por email al cliente cuando el restaurante cancela
+                    // (cancelada = cancelada por el restaurante, no por el cliente)
+                    if ("cancelada".equals(nuevoEstado) && !"cancelada".equals(estadoAnterior)) {
+                        notificationService.notificarCancelacionReserva(res, body.getMotivoCancelacion());
                     }
 
                     Map<String, Object> resp = new HashMap<>();

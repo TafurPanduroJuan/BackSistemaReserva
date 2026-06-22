@@ -13,8 +13,17 @@ public class UpdateStatusRequest {
     )
     private String estado;
 
+    @Schema(
+        description = "Motivo de cancelación (requerido cuando el estado es 'cancelada')",
+        example = "El restaurante cerró por mantenimiento de emergencia"
+    )
+    private String motivoCancelacion;
+
     public UpdateStatusRequest() {}
 
     public String getEstado() { return estado; }
     public void setEstado(String estado) { this.estado = estado; }
+
+    public String getMotivoCancelacion() { return motivoCancelacion; }
+    public void setMotivoCancelacion(String motivoCancelacion) { this.motivoCancelacion = motivoCancelacion; }
 }
