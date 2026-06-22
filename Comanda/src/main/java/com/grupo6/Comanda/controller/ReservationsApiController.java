@@ -1,118 +1,132 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
-                             https://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <modelVersion>4.0.0</modelVersion>
+package com.grupo6.Comanda.controller;
 
-    <parent>
-        <groupId>org.springframework.boot</groupId>
-        <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.4.5</version>
-        <relativePath/>
-    </parent>
+import com.grupo6.Comanda.controller.dto.UpdateStatusRequest;
+import com.grupo6.Comanda.model.entities.ReservationEntity;
+import com.grupo6.Comanda.repository.ReservationRepository;
+import com.grupo6.Comanda.repository.TableRepository;
+import com.grupo6.Comanda.service.ReservationsService;
+import com.grupo6.Comanda.service.NotificationService;
 
-    <groupId>com.grupo6</groupId>
-    <artifactId>Comanda</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
-    <name>Comanda</name>
-    <description>Sistema de Reservas de Restaurantes - Grupo 6</description>
-    <packaging>jar</packaging>
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.*;
 
-    <properties>
-        <java.version>21</java.version>
-        <springdoc.version>2.8.8</springdoc.version>
-        <sqlite-jdbc.version>3.45.3.0</sqlite-jdbc.version>
-        <hibernate-community-dialects.version>6.6.13.Final</hibernate-community-dialects.version>
-        <jjwt.version>0.11.5</jjwt.version>
-    </properties>
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
-    <dependencies>
+/**
+ * Endpoints used by the React frontend:
+ *
+ *   GET    /api/reservations?restaurantId=&fecha=&estado=   → filtered list (admin/personal)
+ *   GET    /api/reservations/me                             → reservas del usuario autenticado
+ *   PATCH  /api/reservations/{id}/status                    → update status (+ motivoCancelacion)
+ */
+@RestController
+@RequestMapping("/api/reservations")
+@CrossOrigin
+public class ReservationsApiController {
 
-        <!-- Spring Boot Starters -->
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-data-jpa</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-mail</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-security</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-web</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-validation</artifactId>
-        </dependency>
+    private final ReservationsService service;
+    private final ReservationRepository reservationRepository;
+    private final TableRepository tableRepository;
+    private final NotificationService notificationService;
 
-        <!-- Swagger / OpenAPI UI -->
-        <dependency>
-            <groupId>org.springdoc</groupId>
-            <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
-            <version>${springdoc.version}</version>
-        </dependency>
+    public ReservationsApiController(ReservationsService service,
+                                     ReservationRepository reservationRepository,
+                                     TableRepository tableRepository,
+                                     NotificationService notificationService) {
+        this.service = service;
+        this.reservationRepository = reservationRepository;
+        this.tableRepository = tableRepository;
+        this.notificationService = notificationService;
+    }
 
-       <!-- PostgreSQL -->
-        <dependency>
-            <groupId>org.postgresql</groupId>
-            <artifactId>postgresql</artifactId>
-            <scope>runtime</scope>
-        </dependency>
+    /**
+     * Listado filtrado para intranet (admin / personal).
+     */
+    @GetMapping
+    public ResponseEntity<List<ReservationEntity>> getReservations(
+            @RequestParam("restaurantId") Long restaurantId,
+            @RequestParam(value = "fecha", required = false) String fecha,
+            @RequestParam(value = "estado", required = false) String estado
+    ) {
+        if (fecha == null || fecha.isBlank()) {
+            return ResponseEntity.ok(reservationRepository.findByRestaurant_Id(restaurantId));
+        }
+        return ResponseEntity.ok(service.getReservations(restaurantId, fecha, estado));
+    }
 
-        <!-- JWT -->
-        <dependency>
-            <groupId>io.jsonwebtoken</groupId>
-            <artifactId>jjwt-api</artifactId>
-            <version>${jjwt.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>io.jsonwebtoken</groupId>
-            <artifactId>jjwt-impl</artifactId>
-            <version>${jjwt.version}</version>
-            <scope>runtime</scope>
-        </dependency>
-        <dependency>
-            <groupId>io.jsonwebtoken</groupId>
-            <artifactId>jjwt-jackson</artifactId>
-            <version>${jjwt.version}</version>
-            <scope>runtime</scope>
-        </dependency>
+    /**
+     * Reservas del usuario autenticado.
+     * Filtra por el email extraído del JWT.
+     */
+    @GetMapping("/me")
+    public ResponseEntity<List<ReservationEntity>> getMyReservations(
+            Authentication authentication) {
+        String email = authentication.getName();
+        List<ReservationEntity> reservas = reservationRepository.findByEmail(email);
+        return ResponseEntity.ok(reservas);
+    }
 
-        <!-- DevTools -->
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-devtools</artifactId>
-            <scope>runtime</scope>
-            <optional>true</optional>
-        </dependency>
+    /**
+     * Actualizar estado de una reserva.
+     * Body: { "estado": "cancelada", "motivoCancelacion": "..." }
+     * Valores válidos: pendiente | confirmada | cancelada | cancelada_cliente
+     *
+     * Al cancelar (por admin/personal) o rechazar, se envía notificación por email al cliente.
+     */
+    @Transactional
+    @PatchMapping("/{id}/status")
+    public ResponseEntity<Map<String, Object>> updateStatus(
+            @PathVariable Long id,
+            @RequestBody UpdateStatusRequest body) {
 
-        <!-- Test -->
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-test</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.security</groupId>
-            <artifactId>spring-security-test</artifactId>
-            <scope>test</scope>
-        </dependency>
+        if (body.getEstado() == null || body.getEstado().isBlank()) {
+            Map<String, Object> error = new HashMap<>();
+            error.put("error", "Missing 'estado' field");
+            return ResponseEntity.badRequest().body(error);
+        }
 
-    </dependencies>
+        String estadoFinal = body.getEstado();
 
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-maven-plugin</artifactId>
-            </plugin>
-        </plugins>
-    </build>
+        return reservationRepository.findById(id)
+                .map(res -> {
+                    String nuevoEstado = estadoFinal.toLowerCase();
+                    String estadoAnterior = res.getEstado();
+                    res.setEstado(nuevoEstado);
 
-</project>
+                    // Guardar motivo de cancelación si viene en el body
+                    if (body.getMotivoCancelacion() != null && !body.getMotivoCancelacion().isBlank()) {
+                        res.setMotivoCancelacion(body.getMotivoCancelacion());
+                    }
+
+                    reservationRepository.save(res);
+
+                    // Si la reserva se cancela (por admin o por cliente), liberar la mesa
+                    boolean esCancelacion = nuevoEstado.startsWith("cancelada");
+                    if (esCancelacion && res.getMesaNumero() != null && res.getRestaurant() != null) {
+                        tableRepository
+                            .findByRestaurant_IdAndNumero(res.getRestaurant().getId(), res.getMesaNumero())
+                            .ifPresent(mesa -> {
+                                mesa.setEstado("disponible");
+                                tableRepository.save(mesa);
+                            });
+                    }
+
+                    // Enviar notificación por email al cliente cuando el restaurante cancela
+                    // (cancelada = cancelada por el restaurante, no por el cliente)
+                    if ("cancelada".equals(nuevoEstado) && !"cancelada".equals(estadoAnterior)) {
+                        notificationService.notificarCancelacionReserva(res, body.getMotivoCancelacion());
+                    }
+
+                    Map<String, Object> resp = new HashMap<>();
+                    resp.put("message", "Status updated");
+                    resp.put("id", id);
+                    resp.put("estado", nuevoEstado);
+                    return ResponseEntity.<Map<String, Object>>ok(resp);
+                })
+                .orElseGet(() -> ResponseEntity.<Map<String, Object>>notFound().build());
+    }
+}
