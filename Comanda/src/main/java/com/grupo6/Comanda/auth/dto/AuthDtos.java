@@ -116,6 +116,24 @@ public final class AuthDtos {
         public void   setRestaurante(String restaurante){ this.restaurante = restaurante; }
     }
 
+     @Schema(description = "Solicitud de recuperación de contraseña")
+    public static class ForgotPasswordRequest {
+
+        @Schema(description = "Correo electrónico de la cuenta a recuperar", example = "diego@example.com", requiredMode = Schema.RequiredMode.REQUIRED)
+        public String email;
+
+        public ForgotPasswordRequest() {
+        }
+
+        public String getEmail() {
+            return email;
+        }
+
+        public void setEmail(String email) {
+            this.email = email;
+        }
+    }
+
     // ─────────────────────────────────────────────────────────────────────────
     // Response
     // ─────────────────────────────────────────────────────────────────────────
