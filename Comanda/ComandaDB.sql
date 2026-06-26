@@ -6,19 +6,19 @@
 -- Pasos para Conectar la BD a pgAdmin 
 
 --HOSTNAME 
--- dpg-d8acrbj7uimc73aaiid0-a.oregon-postgres.render.com
+-- dpg-d8v99vf7f7vs73b7pug0-a.oregon-postgres.render.com
 
 --PORT 
 ---5432
 
 ---DATABASE
----comandadb
+---comandadb_5q48
 
 --USERNAME
---comandadb_user
+--comandadb_5q48_user
 
 --PASSWORD 
---mTjkwtP24bMlS8d56WGbdvPZulJQ5Hzd
+--8TGqBFJCmGzrxekE1OdBTQbtwMGkAC0j
 -- =============================================================
 
 -- -------------------------------------------------------------
