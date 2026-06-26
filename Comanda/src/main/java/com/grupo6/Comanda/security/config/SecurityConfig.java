@@ -84,11 +84,12 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/api/auth/login", "/api/auth/register").permitAll()
 
                         // ── Acceso público: Swagger ───────────────────────────────────
-                        .requestMatchers(     
-                            "/swagger-ui/**", 
-                            "/comanda/api-docs",       // nueva UI
-                            "/comanda/api-docs/**",    // nueva ruta
-                            "/comanda/api-docs/json",  //nuevo JSON spec
+                        .requestMatchers(
+                            "/swagger-ui/**",
+                            "/comanda/swagger-ui/**",      
+                            "/comanda/api-docs",
+                            "/comanda/api-docs/**",
+                            "/comanda/api-docs/json",
                             "/webjars/**")
                         .permitAll()
 
