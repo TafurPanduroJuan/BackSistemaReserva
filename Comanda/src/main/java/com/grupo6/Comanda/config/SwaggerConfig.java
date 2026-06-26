@@ -16,8 +16,8 @@ import java.util.List;
 /**
  * Configuración de Swagger / OpenAPI 3.
  *
- * Swagger UI disponible en: http://localhost:8080/swagger-ui/index.html
- * JSON spec en:             http://localhost:8080/v3/api-docs
+ * // Swagger UI disponible en: http://localhost:8080/comanda/api-docs
+ * // JSON spec en:             http://localhost:8080/comanda/api-docs/json
  *
  * Para endpoints protegidos:
  *   1. Llama a POST /api/auth/login → copia el "token" de la respuesta
