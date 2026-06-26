@@ -55,7 +55,8 @@ public class AuthService {
                 user.getId(),
                 user.getName(),
                 user.getEmail(),
-                user.getRestaurant()   // ← campo añadido
+                user.getRestaurant(),
+                user.getTelefono()   // ← campo añadido
         );
     }
 
@@ -109,7 +110,8 @@ public class AuthService {
                 saved.getId(),
                 saved.getName(),
                 saved.getEmail(),
-                saved.getRestaurant()  // ← campo añadido
+                saved.getRestaurant(),
+                saved.getTelefono()  // ← campo añadido
         );
     }
 

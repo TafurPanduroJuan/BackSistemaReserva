@@ -137,6 +137,8 @@ public final class AuthDtos {
 
         @Schema(description = "Correo del usuario", example = "diego@example.com")
         public String email;
+        @Schema(description = "Teléfono del usuario", example = "999123456")
+        public Long telefono;
 
         // FIX: El frontend (AuthContext.normalizeSession) lee data.restaurante para
         // saber qué restaurante gestiona un usuario con rol PERSONAL.
@@ -161,13 +163,14 @@ public final class AuthDtos {
         }
 
         // FIX: constructor completo con restaurante
-        public AuthResponse(String token, String rol, Long id, String nombre, String email, String restaurante) {
+        public AuthResponse(String token, String rol, Long id, String nombre, String email, String restaurante, Long telefono) {
             this.token       = token;
             this.rol         = rol;
             this.id          = id;
             this.nombre      = nombre;
             this.email       = email;
             this.restaurante = restaurante;
+            this.telefono = telefono;
         }
 
         public String getToken()        { return token; }
