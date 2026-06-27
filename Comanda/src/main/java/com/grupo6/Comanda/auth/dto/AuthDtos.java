@@ -67,6 +67,48 @@ public final class AuthDtos {
     }
 
     // ─────────────────────────────────────────────────────────────────────────
+    // Google OAuth
+    // ─────────────────────────────────────────────────────────────────────────
+
+    @Schema(description = "Token de Google ID para autenticación con Google")
+    public static class GoogleAuthRequest {
+        @Schema(description = "ID Token devuelto por Google Sign-In", requiredMode = Schema.RequiredMode.REQUIRED)
+        public String idToken;
+
+        public GoogleAuthRequest() {}
+        public String getIdToken() { return idToken; }
+        public void   setIdToken(String t) { this.idToken = t; }
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // Recuperación de contraseña
+    // ─────────────────────────────────────────────────────────────────────────
+
+    @Schema(description = "Solicitud de recuperación: email de la cuenta o email de Google vinculado")
+    public static class ForgotPasswordRequest {
+        @Schema(description = "Correo de la cuenta Comanda o correo Google vinculado", requiredMode = Schema.RequiredMode.REQUIRED)
+        public String email;
+
+        public ForgotPasswordRequest() {}
+        public String getEmail() { return email; }
+        public void   setEmail(String e) { this.email = e; }
+    }
+
+    @Schema(description = "Restablece la contraseña usando el token recibido por email")
+    public static class ResetPasswordRequest {
+        @Schema(description = "Token recibido en el correo", requiredMode = Schema.RequiredMode.REQUIRED)
+        public String token;
+        @Schema(description = "Nueva contraseña (mínimo 6 caracteres)", requiredMode = Schema.RequiredMode.REQUIRED)
+        public String newPassword;
+
+        public ResetPasswordRequest() {}
+        public String getToken()       { return token; }
+        public void   setToken(String t)            { this.token = t; }
+        public String getNewPassword() { return newPassword; }
+        public void   setNewPassword(String p)      { this.newPassword = p; }
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
     // UpdateMe — DTO dedicado para PUT /api/users/me
     // ─────────────────────────────────────────────────────────────────────────
 
@@ -82,6 +124,9 @@ public final class AuthDtos {
         @Schema(description = "Nuevo teléfono (exactamente 9 dígitos, opcional)", example = "987654321")
         public Long telefono;
 
+        @Schema(description = "Correo de Google vinculado (para recuperación de contraseña)", example = "diego@gmail.com")
+        public String googleEmail;
+
         public UpdateMeRequest() {}
         public String getNombre()   { return nombre; }
         public void   setNombre(String nombre)     { this.nombre = nombre; }
@@ -89,6 +134,8 @@ public final class AuthDtos {
         public void   setAvatar(String avatar)     { this.avatar = avatar; }
         public Long   getTelefono() { return telefono; }
         public void   setTelefono(Long telefono)   { this.telefono = telefono; }
+        public String getGoogleEmail() { return googleEmail; }
+        public void   setGoogleEmail(String g) { this.googleEmail = g; }
     }
 
     // ─────────────────────────────────────────────────────────────────────────
@@ -147,6 +194,9 @@ public final class AuthDtos {
         @Schema(description = "Restaurante asignado (solo rol PERSONAL)", example = "La Bella Italia")
         public String restaurante;
 
+        @Schema(description = "Correo de Google vinculado", example = "diego@gmail.com")
+        public String googleEmail;
+
         public AuthResponse() {}
 
         public AuthResponse(String token, String rol) {
@@ -162,7 +212,7 @@ public final class AuthDtos {
             this.email  = email;
         }
 
-        // FIX: constructor completo con restaurante
+        // constructor completo
         public AuthResponse(String token, String rol, Long id, String nombre, String email, String restaurante, Long telefono) {
             this.token       = token;
             this.rol         = rol;
@@ -170,7 +220,13 @@ public final class AuthDtos {
             this.nombre      = nombre;
             this.email       = email;
             this.restaurante = restaurante;
-            this.telefono = telefono;
+            this.telefono    = telefono;
+        }
+
+        // constructor con googleEmail
+        public AuthResponse(String token, String rol, Long id, String nombre, String email, String restaurante, Long telefono, String googleEmail) {
+            this(token, rol, id, nombre, email, restaurante, telefono);
+            this.googleEmail = googleEmail;
         }
 
         public String getToken()        { return token; }
@@ -185,5 +241,7 @@ public final class AuthDtos {
         public void   setEmail(String email)             { this.email = email; }
         public String getRestaurante()  { return restaurante; }
         public void   setRestaurante(String restaurante) { this.restaurante = restaurante; }
+        public String getGoogleEmail()  { return googleEmail; }
+        public void   setGoogleEmail(String g)           { this.googleEmail = g; }
     }
 }

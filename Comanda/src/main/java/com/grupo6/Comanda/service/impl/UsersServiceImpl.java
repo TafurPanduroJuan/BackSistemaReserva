@@ -98,6 +98,16 @@ public class UsersServiceImpl implements UsersService {
                 user.setTelefono(body.getTelefono());
             }
 
+            // googleEmail — vincular correo de Google para recuperación de contraseña
+            if (body.getGoogleEmail() != null) {
+                String ge = body.getGoogleEmail().trim();
+                if (!ge.isEmpty() && !ge.matches("^[\\w.+\\-]+@[\\w\\-]+\\.[\\w.]+$")) {
+                    throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                            "El correo de Google no es válido");
+                }
+                user.setGoogleEmail(ge.isEmpty() ? null : ge);
+            }
+
             return ResponseEntity.ok(userRepository.save(user));
         }).orElse(ResponseEntity.notFound().build());
     }
