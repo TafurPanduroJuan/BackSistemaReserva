@@ -81,14 +81,20 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
 
                         // ── Acceso público: autenticación ────────────────────────────
-                        .requestMatchers(HttpMethod.POST, "/api/auth/login", "/api/auth/register").permitAll()
+                        .requestMatchers(HttpMethod.POST,
+                                "/api/auth/login",
+                                "/api/auth/register",
+                                "/api/auth/google",
+                                "/api/auth/forgot-password",
+                                "/api/auth/reset-password").permitAll()
 
                         // ── Acceso público: Swagger ───────────────────────────────────
-                        .requestMatchers(     
-                            "/swagger-ui/**", 
-                            "/comanda/api-docs",       // nueva UI
-                            "/comanda/api-docs/**",    // nueva ruta
-                            "/comanda/api-docs/json",  //nuevo JSON spec
+                        .requestMatchers(
+                            "/swagger-ui/**",
+                            "/comanda/swagger-ui/**",      
+                            "/comanda/api-docs",
+                            "/comanda/api-docs/**",
+                            "/comanda/api-docs/json",
                             "/webjars/**")
                         .permitAll()
 
@@ -100,7 +106,9 @@ public class SecurityConfig {
 
                         // ── Acceso público: comentarios ───────────────────────────────
                         .requestMatchers(HttpMethod.POST, "/api/comments").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/comments/my-restaurant").authenticated()
                         .requestMatchers(HttpMethod.GET, "/api/comments/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/comments/*/reply").authenticated()
 
                         // ── Acceso público: ver y reservar mesas ──────────────────────
                         .requestMatchers(HttpMethod.GET, "/api/tables/**").permitAll()
