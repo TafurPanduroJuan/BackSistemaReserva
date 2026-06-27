@@ -6,19 +6,19 @@
 -- Pasos para Conectar la BD a pgAdmin 
 
 --HOSTNAME 
--- dpg-d8acrbj7uimc73aaiid0-a.oregon-postgres.render.com
+-- dpg-d8v99vf7f7vs73b7pug0-a.oregon-postgres.render.com
 
 --PORT 
 ---5432
 
 ---DATABASE
----comandadb
+---comandadb_5q48
 
 --USERNAME
---comandadb_user
+--comandadb_5q48_user
 
 --PASSWORD 
---mTjkwtP24bMlS8d56WGbdvPZulJQ5Hzd
+--8TGqBFJCmGzrxekE1OdBTQbtwMGkAC0j
 -- =============================================================
 
 -- -------------------------------------------------------------
@@ -226,3 +226,22 @@ ALTER TABLE restaurants
 -- =============================================================
 --  FIN DEL SCRIPT  –  ComandaDB
 -- =============================================================
+
+-- =============================================================
+--  MIGRACIÓN: Google Auth + Recuperación de contraseña
+--  Ejecutar en BD existente (Render u otro)
+-- =============================================================
+
+-- Campo para vincular correo de Google al perfil
+ALTER TABLE users
+    ADD COLUMN IF NOT EXISTS google_email VARCHAR(200),
+    ADD COLUMN IF NOT EXISTS password_reset_token VARCHAR(255),
+    ADD COLUMN IF NOT EXISTS password_reset_expires BIGINT;
+
+-- Campo teléfono (si no existía antes)
+ALTER TABLE users
+    ADD COLUMN IF NOT EXISTS telefono BIGINT;
+
+-- Índice para búsqueda rápida por google_email y por token
+CREATE INDEX IF NOT EXISTS idx_users_google_email ON users(google_email);
+CREATE INDEX IF NOT EXISTS idx_users_reset_token  ON users(password_reset_token);

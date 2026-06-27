@@ -46,6 +46,16 @@ public class UserEntity {
     @Column(name = "telefono")
     private Long telefono;
 
+    @Schema(description = "Correo de Google vinculado (para recuperar contraseña)", example = "diego@gmail.com")
+    @Column(name = "google_email")
+    private String googleEmail;
+
+    @Column(name = "password_reset_token")
+    private String passwordResetToken;
+
+    @Column(name = "password_reset_expires")
+    private Long passwordResetExpires;
+
     @Schema(description = "Fecha de registro (ISO-8601)", example = "2026-06-01", accessMode = Schema.AccessMode.READ_ONLY)
     @Column(name = "fecha_registro", nullable = false)
     private String createdAt;
@@ -53,7 +63,7 @@ public class UserEntity {
     public Long   getId()           { return id; }
     public void   setId(Long id)    { this.id = id; }
 
-    // nombre — serialized as "nombre" for the React frontend
+    
     @JsonProperty("nombre")
     public String getName()         { return name; }
     public void   setName(String name) { this.name = name; }
@@ -64,14 +74,14 @@ public class UserEntity {
     public String getPasswordHash() { return passwordHash; }
     public void   setPasswordHash(String passwordHash) { this.passwordHash = passwordHash; }
 
-    // rol — serialized as "rol" (lowercase) for the React frontend
+    
     @JsonProperty("rol")
     public String getRolAsString()  { return role != null ? role.name().toLowerCase() : null; }
 
     public UserRole getRole()       { return role; }
     public void     setRole(UserRole role) { this.role = role; }
 
-    // restaurante — serialized as "restaurante" for the React frontend
+    
     @JsonProperty("restaurante")
     public String getRestaurant()   { return restaurant; }
     public void   setRestaurant(String restaurant) { this.restaurant = restaurant; }
@@ -85,4 +95,13 @@ public class UserEntity {
     @JsonProperty("fechaRegistro")
     public String getCreatedAt()    { return createdAt; }
     public void   setCreatedAt(String createdAt) { this.createdAt = createdAt; }
+
+    public String getGoogleEmail()  { return googleEmail; }
+    public void   setGoogleEmail(String googleEmail) { this.googleEmail = googleEmail; }
+
+    public String getPasswordResetToken() { return passwordResetToken; }
+    public void   setPasswordResetToken(String t) { this.passwordResetToken = t; }
+
+    public Long   getPasswordResetExpires() { return passwordResetExpires; }
+    public void   setPasswordResetExpires(Long e) { this.passwordResetExpires = e; }
 }
