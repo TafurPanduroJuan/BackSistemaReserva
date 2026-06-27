@@ -105,7 +105,7 @@ public class SecurityConfig {
 
                         // ── Acceso público: ver y reservar mesas ──────────────────────
                         .requestMatchers(HttpMethod.GET, "/api/tables/**").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/api/tables/reserve").authenticated()
+                        .requestMatchers(HttpMethod.POST, "/api/tables/reserve").permitAll()
 
                         // ── FIX: /api/users/me debe ir ANTES de /api/users/** ─────────
                         // Si /api/users/** se evalúa primero, captura también /me
