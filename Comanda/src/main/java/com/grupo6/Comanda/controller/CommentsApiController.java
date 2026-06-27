@@ -63,19 +63,29 @@ public class CommentsApiController {
     public ResponseEntity<List<CommentEntity>> myRestaurantComments(
             Authentication authentication,
             @RequestParam(value = "tipo", required = false) String tipo) {
+
+        if (authentication == null || !authentication.isAuthenticated()) {
+            return ResponseEntity.status(401).build();
+        }
+
         String email = authentication.getName();
-        UserEntity personal = userRepository.findByEmail(email)
-            .orElse(null);
+        UserEntity personal = userRepository.findByEmail(email).orElse(null);
+
         if (personal == null || personal.getRestaurant() == null || personal.getRestaurant().isBlank()) {
             return ResponseEntity.ok(List.of());
         }
-        String nombreRestaurante = personal.getRestaurant();
-        List<CommentEntity> todos = commentRepository.findByRestaurant_Nombre(nombreRestaurante);
+
+        String nombreRestaurante = personal.getRestaurant().trim();
+
+        // Buscar por nombre exacto y también por nombre ignorando mayúsculas
+        List<CommentEntity> todos = commentRepository.findByRestaurant_NombreIgnoreCase(nombreRestaurante);
+
         if (tipo != null && !tipo.isBlank()) {
             todos = todos.stream()
                 .filter(c -> tipo.equalsIgnoreCase(c.getTipo()))
                 .toList();
         }
+
         return ResponseEntity.ok(todos);
     }
 
