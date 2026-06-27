@@ -1,7 +1,9 @@
 package com.grupo6.Comanda.controller;
 
 import com.grupo6.Comanda.model.entities.CommentEntity;
+import com.grupo6.Comanda.model.entities.UserEntity;
 import com.grupo6.Comanda.repository.CommentRepository;
+import com.grupo6.Comanda.repository.UserRepository;
 import com.grupo6.Comanda.service.CommentsService;
 import com.grupo6.Comanda.service.NotificationService;
 
@@ -33,13 +35,16 @@ public class CommentsApiController {
     private final CommentsService commentsService;
     private final CommentRepository commentRepository;
     private final NotificationService notificationService;
+    private final UserRepository userRepository;
 
     public CommentsApiController(CommentsService commentsService,
                                   CommentRepository commentRepository,
-                                  NotificationService notificationService) {
+                                  NotificationService notificationService,
+                                  UserRepository userRepository) {
         this.commentsService = commentsService;
         this.commentRepository = commentRepository;
         this.notificationService = notificationService;
+        this.userRepository = userRepository;
     }
 
     @GetMapping
@@ -50,7 +55,31 @@ public class CommentsApiController {
     }
 
     /**
-     * Comentarios del usuario autenticado (todos).
+     * Comentarios del restaurante del usuario PERSONAL autenticado.
+     * Filtra por el nombre del restaurante asignado al usuario.
+     * Solo accesible para rol PERSONAL o ADMINISTRADOR.
+     */
+    @GetMapping("/my-restaurant")
+    public ResponseEntity<List<CommentEntity>> myRestaurantComments(
+            Authentication authentication,
+            @RequestParam(value = "tipo", required = false) String tipo) {
+        String email = authentication.getName();
+        UserEntity personal = userRepository.findByEmail(email)
+            .orElse(null);
+        if (personal == null || personal.getRestaurant() == null || personal.getRestaurant().isBlank()) {
+            return ResponseEntity.ok(List.of());
+        }
+        String nombreRestaurante = personal.getRestaurant();
+        List<CommentEntity> todos = commentRepository.findByRestaurant_Nombre(nombreRestaurante);
+        if (tipo != null && !tipo.isBlank()) {
+            todos = todos.stream()
+                .filter(c -> tipo.equalsIgnoreCase(c.getTipo()))
+                .toList();
+        }
+        return ResponseEntity.ok(todos);
+    }
+
+    /**
      */
     @GetMapping("/me")
     public ResponseEntity<List<CommentEntity>> myComments(Authentication authentication) {
