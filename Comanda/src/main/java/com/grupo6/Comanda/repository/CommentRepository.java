@@ -7,6 +7,7 @@ import java.util.List;
 
 public interface CommentRepository extends JpaRepository<CommentEntity, Long> {
     List<CommentEntity> findByRestaurant_Id(Long restaurantId);
+    List<CommentEntity> findByRestaurant_Nombre(String nombre);
     List<CommentEntity> findByRestaurant_IdAndTipo(Long restaurantId, String tipo);
     List<CommentEntity> findByTipo(String tipo);
     Long countByLeidoFalse();
