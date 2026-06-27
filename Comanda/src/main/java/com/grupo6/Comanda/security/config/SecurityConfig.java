@@ -104,11 +104,17 @@ public class SecurityConfig {
                         // ── Acceso público: enviar solicitud de restaurante ───────────
                         .requestMatchers(HttpMethod.POST, "/api/restaurants/requests").permitAll()
 
-                        // ── Acceso público: comentarios ───────────────────────────────
+                        // ── Comentarios: rutas autenticadas PRIMERO (orden es crítico) ──
+                        .requestMatchers(HttpMethod.GET,    "/api/comments/my-restaurant").authenticated()
+                        .requestMatchers(HttpMethod.GET,    "/api/comments/me").authenticated()
+                        .requestMatchers(HttpMethod.GET,    "/api/comments/me/replies").authenticated()
+                        .requestMatchers(HttpMethod.POST,   "/api/comments/*/reply").authenticated()
+                        .requestMatchers(HttpMethod.PUT,    "/api/comments/*/read").authenticated()
+                        .requestMatchers(HttpMethod.DELETE, "/api/comments/*").authenticated()
+                        // ── Comentarios: rutas públicas ──────────────────────────────────
                         .requestMatchers(HttpMethod.POST, "/api/comments").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/comments/my-restaurant").authenticated()
-                        .requestMatchers(HttpMethod.GET, "/api/comments/**").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/api/comments/*/reply").authenticated()
+                        .requestMatchers(HttpMethod.GET,  "/api/comments").permitAll()
+                        .requestMatchers(HttpMethod.GET,  "/api/comments/unread-count").permitAll()
 
                         // ── Acceso público: ver y reservar mesas ──────────────────────
                         .requestMatchers(HttpMethod.GET, "/api/tables/**").permitAll()
