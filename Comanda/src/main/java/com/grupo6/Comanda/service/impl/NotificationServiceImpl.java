@@ -2,6 +2,7 @@ package com.grupo6.Comanda.service.impl;
 
 import com.grupo6.Comanda.model.entities.CommentEntity;
 import com.grupo6.Comanda.model.entities.ReservationEntity;
+import com.grupo6.Comanda.model.entities.RestaurantRequestEntity;
 import com.grupo6.Comanda.service.NotificationService;
 
 import org.slf4j.Logger;
@@ -40,6 +41,8 @@ public class NotificationServiceImpl implements NotificationService {
     @Value("${comanda.mail.enabled:false}")
     private boolean mailEnabled;
 
+    // ── Reservas ──────────────────────────────────────────────────────────────
+
     @Override
     public void notificarCancelacionReserva(ReservationEntity reserva, String motivo) {
         String nombreRestaurante = reserva.getRestaurant() != null
@@ -61,6 +64,8 @@ public class NotificationServiceImpl implements NotificationService {
         enviarEmail(reserva.getEmail(), asunto, cuerpo);
     }
 
+    // ── Comentarios ───────────────────────────────────────────────────────────
+
     @Override
     public void notificarRespuestaComentario(CommentEntity comentario) {
         String nombreRestaurante = comentario.getRestaurant() != null
@@ -79,8 +84,44 @@ public class NotificationServiceImpl implements NotificationService {
         enviarEmail(comentario.getEmail(), asunto, cuerpo);
     }
 
+    // ── Solicitudes de restaurante ────────────────────────────────────────────
+
+    @Override
+    public void notificarRechazoSolicitudRestaurante(RestaurantRequestEntity solicitud, String motivo) {
+        String asunto = "Tu solicitud de registro \"" + solicitud.getNombre() + "\" no fue aprobada";
+
+        String cuerpo = "Hola " + solicitud.getPropietario() + ",\n\n"
+                + "Gracias por tu interés en formar parte de Comanda.\n\n"
+                + "Lamentamos informarte que tu solicitud de registro para el restaurante \""
+                + solicitud.getNombre() + "\" no ha sido aprobada en esta ocasión.\n\n"
+                + (motivo != null && !motivo.isBlank()
+                    ? "Motivo: " + motivo + "\n\n"
+                    : "")
+                + "Si crees que existe algún error o deseas más información, "
+                + "puedes ponerte en contacto con nuestro equipo de soporte.\n\n"
+                + "El equipo de Comanda";
+
+        enviarEmail(solicitud.getEmail(), asunto, cuerpo);
+    }
+
+    @Override
+    public void notificarAceptacionSolicitudRestaurante(RestaurantRequestEntity solicitud) {
+        String asunto = "¡Tu restaurante \"" + solicitud.getNombre() + "\" ha sido aprobado en Comanda!";
+
+        String cuerpo = "Hola " + solicitud.getPropietario() + ",\n\n"
+                + "¡Excelentes noticias! Tu solicitud de registro para el restaurante \""
+                + solicitud.getNombre() + "\" ha sido aprobada.\n\n"
+                + "Tu restaurante ya está disponible en nuestra plataforma. "
+                + "En breve nos pondremos en contacto para configurar el acceso a tu panel de gestión.\n\n"
+                + "¡Bienvenido a Comanda!\n\n"
+                + "El equipo de Comanda";
+
+        enviarEmail(solicitud.getEmail(), asunto, cuerpo);
+    }
+
+    // ── Envío interno ─────────────────────────────────────────────────────────
+
     private void enviarEmail(String destinatario, String asunto, String cuerpo) {
-        // Log siempre para trazabilidad
         log.info("[NOTIFICACIÓN] Para: {} | Asunto: {}", destinatario, asunto);
         log.debug("[NOTIFICACIÓN] Cuerpo:\n{}", cuerpo);
 
