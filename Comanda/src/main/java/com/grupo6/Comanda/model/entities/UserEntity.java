@@ -38,8 +38,8 @@ public class UserEntity {
     @Column(name = "restaurante")
     private String restaurant;
 
-    @Schema(description = "URL del avatar del usuario")
-    @Column(name = "avatar")
+    @Schema(description = "URL del avatar del usuario o imagen en Base64")
+    @Column(name = "avatar", columnDefinition = "TEXT")
     private String avatar;
 
     @Schema(description = "Teléfono de contacto (exactamente 9 dígitos)", example = "987654321")
