@@ -197,6 +197,9 @@ public final class AuthDtos {
         @Schema(description = "Correo de Google vinculado", example = "diego@gmail.com")
         public String googleEmail;
 
+        @Schema(description = "Fecha de registro del usuario (ISO-8601)", example = "2026-01-15")
+        public String fechaRegistro;
+
         public AuthResponse() {}
 
         public AuthResponse(String token, String rol) {
@@ -243,5 +246,7 @@ public final class AuthDtos {
         public void   setRestaurante(String restaurante) { this.restaurante = restaurante; }
         public String getGoogleEmail()  { return googleEmail; }
         public void   setGoogleEmail(String g)           { this.googleEmail = g; }
+        public String getFechaRegistro()  { return fechaRegistro; }
+        public void   setFechaRegistro(String f)         { this.fechaRegistro = f; }
     }
 }
