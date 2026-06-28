@@ -1,5 +1,6 @@
 package com.grupo6.Comanda.model.entities;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
 
@@ -31,6 +32,7 @@ public class RestaurantEntity {
     private String direccion;
 
     @Schema(description = "Mensaje de bienvenida personalizado", example = "¡Te esperamos para una experiencia única!")
+    @JsonProperty("mensaje_personalizado")
     @Column(name = "mensaje_personalizado", columnDefinition = "TEXT")
     private String mensajePersonalizado;
 
