@@ -245,3 +245,33 @@ ALTER TABLE users
 -- Índice para búsqueda rápida por google_email y por token
 CREATE INDEX IF NOT EXISTS idx_users_google_email ON users(google_email);
 CREATE INDEX IF NOT EXISTS idx_users_reset_token  ON users(password_reset_token);
+
+-- =============================================================
+--  MIGRACIÓN: Horarios por día (Lunes–Domingo)
+--  Aplica sobre: restaurants  y  restaurant_requests
+-- =============================================================
+
+-- ── 1. Tabla restaurants ─────────────────────────────────────────────────────
+ALTER TABLE restaurants
+  DROP COLUMN IF EXISTS horario_apertura,
+  DROP COLUMN IF EXISTS horario_cierre,
+  ADD COLUMN IF NOT EXISTS horario_lunes     VARCHAR(15),   -- "HH:mm-HH:mm" o NULL
+  ADD COLUMN IF NOT EXISTS horario_martes    VARCHAR(15),
+  ADD COLUMN IF NOT EXISTS horario_miercoles VARCHAR(15),
+  ADD COLUMN IF NOT EXISTS horario_jueves    VARCHAR(15),
+  ADD COLUMN IF NOT EXISTS horario_viernes   VARCHAR(15),
+  ADD COLUMN IF NOT EXISTS horario_sabado    VARCHAR(15),
+  ADD COLUMN IF NOT EXISTS horario_domingo   VARCHAR(15);
+
+-- ── 2. Tabla restaurant_requests ─────────────────────────────────────────────
+ALTER TABLE restaurant_requests
+  DROP COLUMN IF EXISTS horario_apertura,
+  DROP COLUMN IF EXISTS horario_cierre,
+  ADD COLUMN IF NOT EXISTS horario_lunes     VARCHAR(15),
+  ADD COLUMN IF NOT EXISTS horario_martes    VARCHAR(15),
+  ADD COLUMN IF NOT EXISTS horario_miercoles VARCHAR(15),
+  ADD COLUMN IF NOT EXISTS horario_jueves    VARCHAR(15),
+  ADD COLUMN IF NOT EXISTS horario_viernes   VARCHAR(15),
+  ADD COLUMN IF NOT EXISTS horario_sabado    VARCHAR(15),
+  ADD COLUMN IF NOT EXISTS horario_domingo   VARCHAR(15);
+
