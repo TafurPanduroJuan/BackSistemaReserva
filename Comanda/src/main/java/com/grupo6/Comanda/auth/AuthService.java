@@ -162,6 +162,7 @@ public class AuthService {
                 user.getTelefono(),
                 user.getGoogleEmail()
         );
+        r.setAvatar(user.getAvatar());
         r.setFechaRegistro(user.getCreatedAt());
         return r;
     }
