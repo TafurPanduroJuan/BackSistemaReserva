@@ -34,7 +34,6 @@ public class RestaurantRequestEntity {
     @Column(name = "distrito", nullable = false)
     private String distrito;
 
-    // FIX: dirección puede superar 255 chars
     @Schema(description = "Dirección exacta del restaurante", example = "Av. Larco 123")
     @Column(name = "direccion", columnDefinition = "TEXT")
     private String direccion;
@@ -43,27 +42,48 @@ public class RestaurantRequestEntity {
     @Column(name = "telefono", nullable = false)
     private Long telefono;
 
-    // FIX: descripcion es texto libre, puede ser largo
-    @Schema(description = "Descripción o mensaje adicional del solicitante", example = "Restaurante familiar con 10 años de experiencia")
+    @Schema(description = "Descripción o mensaje adicional del solicitante")
     @Column(name = "descripcion", nullable = false, columnDefinition = "TEXT")
     private String descripcion;
 
-    // FIX: mensaje_personalizado puede superar 255 chars
     @Schema(description = "Slogan o mensaje personalizado del restaurante", example = "El mejor sabor norteño")
     @Column(name = "mensaje_personalizado", columnDefinition = "TEXT")
     private String mensajePersonalizado;
 
-    @Schema(description = "Imagen del restaurante en base64 o URL", example = "data:image/jpeg;base64,...")
+    @Schema(description = "Imagen del restaurante en base64 o URL")
     @Column(name = "imagen", columnDefinition = "TEXT")
     private String imagen;
 
-    @Schema(description = "Hora de apertura", example = "12:00")
-    @Column(name = "horario_apertura")
-    private String horarioApertura;
+    // ── Horarios por día ──────────────────────────────────────────────────────
+    // Formato: "HH:mm-HH:mm"  (apertura-cierre). null = cerrado ese día.
 
-    @Schema(description = "Hora de cierre", example = "23:00")
-    @Column(name = "horario_cierre")
-    private String horarioCierre;
+    @Schema(description = "Horario del lunes (apertura-cierre)", example = "09:00-22:00")
+    @Column(name = "horario_lunes")
+    private String horarioLunes;
+
+    @Schema(description = "Horario del martes (apertura-cierre)", example = "09:00-22:00")
+    @Column(name = "horario_martes")
+    private String horarioMartes;
+
+    @Schema(description = "Horario del miércoles (apertura-cierre)", example = "09:00-22:00")
+    @Column(name = "horario_miercoles")
+    private String horarioMiercoles;
+
+    @Schema(description = "Horario del jueves (apertura-cierre)", example = "09:00-22:00")
+    @Column(name = "horario_jueves")
+    private String horarioJueves;
+
+    @Schema(description = "Horario del viernes (apertura-cierre)", example = "09:00-22:00")
+    @Column(name = "horario_viernes")
+    private String horarioViernes;
+
+    @Schema(description = "Horario del sábado (apertura-cierre)", example = "10:00-23:00")
+    @Column(name = "horario_sabado")
+    private String horarioSabado;
+
+    @Schema(description = "Horario del domingo (apertura-cierre)", example = "10:00-23:00")
+    @Column(name = "horario_domingo")
+    private String horarioDomingo;
 
     @Schema(description = "Fecha de la solicitud (ISO-8601)", example = "2026-06-01", accessMode = Schema.AccessMode.READ_ONLY)
     @Column(name = "fecha", nullable = false)
@@ -73,48 +93,65 @@ public class RestaurantRequestEntity {
     @Column(name = "estado", nullable = false)
     private String estado;
 
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
+    // ── Getters / Setters ─────────────────────────────────────────────────────
 
-    public String getNombre() { return nombre; }
-    public void setNombre(String nombre) { this.nombre = nombre; }
+    public Long getId()               { return id; }
+    public void setId(Long id)        { this.id = id; }
 
-    public String getPropietario() { return propietario; }
-    public void setPropietario(String propietario) { this.propietario = propietario; }
+    public String getNombre()         { return nombre; }
+    public void setNombre(String n)   { this.nombre = n; }
 
-    public String getEmail() { return email; }
-    public void setEmail(String email) { this.email = email; }
+    public String getPropietario()           { return propietario; }
+    public void   setPropietario(String p)   { this.propietario = p; }
 
-    public String getTipo() { return tipo; }
-    public void setTipo(String tipo) { this.tipo = tipo; }
+    public String getEmail()          { return email; }
+    public void   setEmail(String e)  { this.email = e; }
 
-    public String getDistrito() { return distrito; }
-    public void setDistrito(String distrito) { this.distrito = distrito; }
+    public String getTipo()           { return tipo; }
+    public void   setTipo(String t)   { this.tipo = t; }
 
-    public String getDireccion() { return direccion; }
-    public void setDireccion(String direccion) { this.direccion = direccion; }
+    public String getDistrito()           { return distrito; }
+    public void   setDistrito(String d)   { this.distrito = d; }
 
-    public Long getTelefono() { return telefono; }
-    public void setTelefono(Long telefono) { this.telefono = telefono; }
+    public String getDireccion()          { return direccion; }
+    public void   setDireccion(String d)  { this.direccion = d; }
 
-    public String getDescripcion() { return descripcion; }
-    public void setDescripcion(String descripcion) { this.descripcion = descripcion; }
+    public Long   getTelefono()           { return telefono; }
+    public void   setTelefono(Long t)     { this.telefono = t; }
 
-    public String getMensajePersonalizado() { return mensajePersonalizado; }
-    public void setMensajePersonalizado(String mensajePersonalizado) { this.mensajePersonalizado = mensajePersonalizado; }
+    public String getDescripcion()            { return descripcion; }
+    public void   setDescripcion(String d)    { this.descripcion = d; }
 
-    public String getImagen() { return imagen; }
-    public void setImagen(String imagen) { this.imagen = imagen; }
+    public String getMensajePersonalizado()           { return mensajePersonalizado; }
+    public void   setMensajePersonalizado(String m)   { this.mensajePersonalizado = m; }
 
-    public String getHorarioApertura() { return horarioApertura; }
-    public void setHorarioApertura(String horarioApertura) { this.horarioApertura = horarioApertura; }
+    public String getImagen()             { return imagen; }
+    public void   setImagen(String i)     { this.imagen = i; }
 
-    public String getHorarioCierre() { return horarioCierre; }
-    public void setHorarioCierre(String horarioCierre) { this.horarioCierre = horarioCierre; }
+    public String getHorarioLunes()               { return horarioLunes; }
+    public void   setHorarioLunes(String h)       { this.horarioLunes = h; }
 
-    public String getFecha() { return fecha; }
-    public void setFecha(String fecha) { this.fecha = fecha; }
+    public String getHorarioMartes()              { return horarioMartes; }
+    public void   setHorarioMartes(String h)      { this.horarioMartes = h; }
 
-    public String getEstado() { return estado; }
-    public void setEstado(String estado) { this.estado = estado; }
+    public String getHorarioMiercoles()           { return horarioMiercoles; }
+    public void   setHorarioMiercoles(String h)   { this.horarioMiercoles = h; }
+
+    public String getHorarioJueves()              { return horarioJueves; }
+    public void   setHorarioJueves(String h)      { this.horarioJueves = h; }
+
+    public String getHorarioViernes()             { return horarioViernes; }
+    public void   setHorarioViernes(String h)     { this.horarioViernes = h; }
+
+    public String getHorarioSabado()              { return horarioSabado; }
+    public void   setHorarioSabado(String h)      { this.horarioSabado = h; }
+
+    public String getHorarioDomingo()             { return horarioDomingo; }
+    public void   setHorarioDomingo(String h)     { this.horarioDomingo = h; }
+
+    public String getFecha()              { return fecha; }
+    public void   setFecha(String f)      { this.fecha = f; }
+
+    public String getEstado()             { return estado; }
+    public void   setEstado(String e)     { this.estado = e; }
 }
