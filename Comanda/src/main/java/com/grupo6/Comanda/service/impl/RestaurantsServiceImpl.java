@@ -85,12 +85,14 @@ public class RestaurantsServiceImpl implements RestaurantsService {
             if (updated.getImagen() != null) {
                 existing.setImagen(updated.getImagen());
             }
-            if (updated.getHorarioApertura() != null && !updated.getHorarioApertura().isBlank()) {
-                existing.setHorarioApertura(updated.getHorarioApertura().trim());
-            }
-            if (updated.getHorarioCierre() != null && !updated.getHorarioCierre().isBlank()) {
-                existing.setHorarioCierre(updated.getHorarioCierre().trim());
-            }
+            // Horarios por día (null = cerrado ese día)
+            existing.setHorarioLunes(updated.getHorarioLunes());
+            existing.setHorarioMartes(updated.getHorarioMartes());
+            existing.setHorarioMiercoles(updated.getHorarioMiercoles());
+            existing.setHorarioJueves(updated.getHorarioJueves());
+            existing.setHorarioViernes(updated.getHorarioViernes());
+            existing.setHorarioSabado(updated.getHorarioSabado());
+            existing.setHorarioDomingo(updated.getHorarioDomingo());
 
             return ResponseEntity.ok(restaurantRepository.save(existing));
         }).orElse(ResponseEntity.notFound().build());
@@ -143,8 +145,14 @@ public class RestaurantsServiceImpl implements RestaurantsService {
                 r.setTelefono(req.getTelefono());
                 r.setEmail(req.getEmail());
                 r.setImagen(req.getImagen());
-                r.setHorarioApertura(req.getHorarioApertura() != null ? req.getHorarioApertura() : "");
-                r.setHorarioCierre(req.getHorarioCierre() != null ? req.getHorarioCierre() : "");
+                // Copiar horarios por día desde la solicitud
+                r.setHorarioLunes(req.getHorarioLunes());
+                r.setHorarioMartes(req.getHorarioMartes());
+                r.setHorarioMiercoles(req.getHorarioMiercoles());
+                r.setHorarioJueves(req.getHorarioJueves());
+                r.setHorarioViernes(req.getHorarioViernes());
+                r.setHorarioSabado(req.getHorarioSabado());
+                r.setHorarioDomingo(req.getHorarioDomingo());
                 restaurantRepository.save(r);
             }
 
