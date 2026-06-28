@@ -197,6 +197,9 @@ public final class AuthDtos {
         @Schema(description = "Correo de Google vinculado", example = "diego@gmail.com")
         public String googleEmail;
 
+        @Schema(description = "URL o Base64 del avatar del usuario")
+        public String avatar;
+
         @Schema(description = "Fecha de registro del usuario (ISO-8601)", example = "2026-01-15")
         public String fechaRegistro;
 
@@ -246,6 +249,8 @@ public final class AuthDtos {
         public void   setRestaurante(String restaurante) { this.restaurante = restaurante; }
         public String getGoogleEmail()  { return googleEmail; }
         public void   setGoogleEmail(String g)           { this.googleEmail = g; }
+        public String getAvatar()       { return avatar; }
+        public void   setAvatar(String avatar)           { this.avatar = avatar; }
         public String getFechaRegistro()  { return fechaRegistro; }
         public void   setFechaRegistro(String f)         { this.fechaRegistro = f; }
     }
