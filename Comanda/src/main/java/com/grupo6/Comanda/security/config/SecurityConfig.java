@@ -99,7 +99,7 @@ public class SecurityConfig {
                         .permitAll()
 
                         // ── Acceso público: ver restaurantes ──────────────────────────
-                        .requestMatchers(HttpMethod.GET, "/api/restaurants", "/api/restaurants/{id}").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/restaurants", "/api/restaurants/{id}", "/api/restaurants/{id}/stats").permitAll()
 
                         // ── Acceso público: enviar solicitud de restaurante ───────────
                         .requestMatchers(HttpMethod.POST, "/api/restaurants/requests").permitAll()
