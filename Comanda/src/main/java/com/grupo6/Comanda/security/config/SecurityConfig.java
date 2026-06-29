@@ -129,6 +129,11 @@ public class SecurityConfig {
                         // ── Reservas del usuario autenticado ──────────────────────────
                         .requestMatchers(HttpMethod.GET, "/api/reservations/me").authenticated()
 
+                        // ── Notificaciones in-app del usuario autenticado ─────────────
+                        .requestMatchers("/api/notifications/me/**").authenticated()
+                        .requestMatchers("/api/notifications/me").authenticated()
+                        .requestMatchers(HttpMethod.POST, "/api/notifications/*/read").authenticated()
+
                         // ── Usuario autenticado: cancelar su propia reserva ───────────
                         .requestMatchers(HttpMethod.PATCH, "/api/reservations/*/status").authenticated()
 
