@@ -10,6 +10,7 @@ import com.grupo6.Comanda.repository.UserRepository;
 import com.grupo6.Comanda.security.PasswordHasher;
 import com.grupo6.Comanda.security.jwt.JwtService;
 
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -130,7 +131,15 @@ public class AuthService {
             if (user.getAvatar() == null && info.picture() != null) {
                 user.setAvatar(info.picture());
             }
-            userRepository.save(user);
+            try {
+                userRepository.save(user);
+            } catch (DataIntegrityViolationException ex) {
+                if (ex.getMessage() != null && ex.getMessage().contains("uq_google_email")) {
+                    throw new ResponseStatusException(HttpStatus.CONFLICT,
+                            "Este correo de Google ya está siendo utilizado por otro usuario. Por favor inicia sesión con otro método.");
+                }
+                throw ex;
+            }
             return buildResponse(user);
         }
 
@@ -145,8 +154,16 @@ public class AuthService {
         newUser.setAvatar(info.picture());
         newUser.setCreatedAt(LocalDate.now().toString());
 
-        UserEntity saved = userRepository.save(newUser);
-        return buildResponse(saved);
+        try {
+            UserEntity saved = userRepository.save(newUser);
+            return buildResponse(saved);
+        } catch (DataIntegrityViolationException ex) {
+            if (ex.getMessage() != null && ex.getMessage().contains("uq_google_email")) {
+                throw new ResponseStatusException(HttpStatus.CONFLICT,
+                        "Este correo de Google ya está siendo utilizado por otro usuario. Por favor inicia sesión con otro método.");
+            }
+            throw ex;
+        }
     }
 
     // ── Helpers ───────────────────────────────────────────────────────────────
