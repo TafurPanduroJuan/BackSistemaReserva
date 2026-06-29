@@ -3,6 +3,9 @@ package com.grupo6.Comanda.controller;
 import com.grupo6.Comanda.controller.dto.RejectRequestBody;
 import com.grupo6.Comanda.model.entities.RestaurantEntity;
 import com.grupo6.Comanda.model.entities.RestaurantRequestEntity;
+import com.grupo6.Comanda.model.entities.CommentEntity;
+import com.grupo6.Comanda.repository.CommentRepository;
+import com.grupo6.Comanda.repository.TableRepository;
 import com.grupo6.Comanda.service.RestaurantsService;
 
 import org.springframework.http.ResponseEntity;
@@ -11,6 +14,8 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
+import java.util.HashMap;
+import java.util.OptionalDouble;
 
 @RestController
 @RequestMapping("/api/restaurants")
@@ -18,9 +23,15 @@ import java.util.Map;
 public class RestaurantsApiController {
 
     private final RestaurantsService restaurantsService;
+    private final TableRepository tableRepository;
+    private final CommentRepository commentRepository;
 
-    public RestaurantsApiController(RestaurantsService restaurantsService) {
+    public RestaurantsApiController(RestaurantsService restaurantsService,
+                                    TableRepository tableRepository,
+                                    CommentRepository commentRepository) {
         this.restaurantsService = restaurantsService;
+        this.tableRepository = tableRepository;
+        this.commentRepository = commentRepository;
     }
 
     // ── Restaurants ──────────────────────────────────────────────────────────
@@ -33,6 +44,37 @@ public class RestaurantsApiController {
     @GetMapping("/{id}")
     public ResponseEntity<RestaurantEntity> getOne(@PathVariable Long id) {
         return restaurantsService.getOne(id);
+    }
+
+    /**
+     * Stats públicas de un restaurante: total de mesas, rating promedio y total de reseñas.
+     * GET /api/restaurants/{id}/stats
+     */
+    @GetMapping("/{id}/stats")
+    public ResponseEntity<Map<String, Object>> getStats(@PathVariable Long id) {
+        // Total de mesas
+        long totalMesas = tableRepository.findByRestaurant_Id(id).size();
+
+        // Comentarios con calificación
+        List<CommentEntity> comentarios = commentRepository.findByRestaurant_Id(id);
+        List<Integer> calificaciones = comentarios.stream()
+            .map(CommentEntity::getCalificacion)
+            .filter(c -> c != null && c >= 1 && c <= 5)
+            .toList();
+
+        long totalResenas = calificaciones.size();
+        OptionalDouble promedio = calificaciones.stream()
+            .mapToInt(Integer::intValue)
+            .average();
+        double rating = promedio.isPresent()
+            ? Math.round(promedio.getAsDouble() * 10.0) / 10.0
+            : 0.0;
+
+        Map<String, Object> stats = new HashMap<>();
+        stats.put("totalMesas", totalMesas);
+        stats.put("totalResenas", totalResenas);
+        stats.put("rating", rating);
+        return ResponseEntity.ok(stats);
     }
 
     @PreAuthorize("hasRole('ADMINISTRADOR')")
