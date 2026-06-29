@@ -179,22 +179,27 @@ public class RestaurantsServiceImpl implements RestaurantsService {
     @Override
     public ResponseEntity<RestaurantEntity> toggleCierre(Long id, Map<String, Object> body) {
         return restaurantRepository.findById(id).map(restaurant -> {
-            Boolean cerrado = (Boolean) body.get("cerrado");
+            Boolean cerrado = (Boolean) body.get("cerradoHoy");
             String motivo = (String) body.get("motivoCierre");
-            String fecha = (String) body.get("fecha"); // YYYY-MM-DD, fecha a cerrar
+            String fecha = (String) body.get("fecha"); // YYYY-MM-DD, fecha específica a cerrar (opcional)
 
             restaurant.setCerradoHoy(cerrado != null ? cerrado : false);
             restaurant.setMotivoCierre(cerrado != null && cerrado ? motivo : null);
 
             RestaurantEntity guardado = restaurantRepository.save(restaurant);
 
-            // Si se está programando un cierre, cancelar las reservas de esa fecha con el
-            // motivo
-            if (cerrado != null && cerrado && fecha != null && !fecha.isBlank()) {
+            // Si no se especifica fecha, usar hoy por defecto (compatibilidad con llamadas
+            // antiguas)
+            String fechaObjetivo = (fecha != null && !fecha.isBlank())
+                    ? fecha
+                    : LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE);
+
+            // Si se está cerrando, cancelar las reservas de la fecha objetivo con el motivo
+            if (cerrado != null && cerrado) {
                 List<ReservationEntity> reservasRestaurante = reservationRepository.findByRestaurant_Id(id);
 
                 for (ReservationEntity reserva : reservasRestaurante) {
-                    boolean esLaFecha = fecha.equals(reserva.getFecha());
+                    boolean esLaFecha = fechaObjetivo.equals(reserva.getFecha());
                     boolean estaActiva = "pendiente".equals(reserva.getEstado())
                             || "confirmada".equals(reserva.getEstado());
 
