@@ -185,19 +185,17 @@ public class RestaurantsServiceImpl implements RestaurantsService {
         return restaurantRepository.findById(id).map(restaurant -> {
             Boolean cerrado = (Boolean) body.get("cerradoHoy");
             String motivo = (String) body.get("motivoCierre");
-            String fecha = (String) body.get("fecha"); // YYYY-MM-DD, fecha específica a cerrar (opcional)
+            String fecha = (String) body.get("fecha");
 
             restaurant.setCerradoHoy(cerrado != null ? cerrado : false);
             restaurant.setMotivoCierre(cerrado != null && cerrado ? motivo : null);
 
             RestaurantEntity guardado = restaurantRepository.save(restaurant);
 
-            // Si no se especifica fecha, usar hoy por defecto (compatibilidad con llamadas antiguas)
             String fechaObjetivo = (fecha != null && !fecha.isBlank())
                     ? fecha
                     : LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE);
 
-            // Si se está cerrando, cancelar las reservas de la fecha objetivo con el motivo
             if (cerrado != null && cerrado) {
                 List<ReservationEntity> reservasRestaurante = reservationRepository.findByRestaurant_Id(id);
 
@@ -212,20 +210,37 @@ public class RestaurantsServiceImpl implements RestaurantsService {
                                 "El restaurante cerró por: " + (motivo != null ? motivo : "inconvenientes operativos"));
                         reservationRepository.save(reserva);
 
-                        // Notificar al cliente por email
                         notificationService.notificarCancelacionReserva(reserva, reserva.getMotivoCancelacion());
 
-                        // ✅ FIX: Crear notificación in-app para que aparezca en la campanita
                         String nombreRest = reserva.getRestaurant() != null
-                                ? reserva.getRestaurant().getNombre() : "el restaurante";
+                                ? reserva.getRestaurant().getNombre()
+                                : "el restaurante";
                         inAppNotificationService.crear(
-                            reserva.getEmail(),
-                            "RESERVATION_CANCELLED",
-                            "❌ Tu reserva en " + nombreRest + " para el " + reserva.getFecha()
-                                + " a las " + reserva.getHora() + " fue cancelada."
-                                + " Motivo: " + reserva.getMotivoCancelacion(),
-                            reserva.getId(), null
-                        );
+                                reserva.getEmail(),
+                                "RESERVATION_CANCELLED",
+                                "❌ Tu reserva en " + nombreRest + " para el " + reserva.getFecha()
+                                        + " a las " + reserva.getHora() + " fue cancelada."
+                                        + " Motivo: " + reserva.getMotivoCancelacion(),
+                                reserva.getId(), null);
+                    }
+                }
+            } else if (cerrado != null && !cerrado) {
+                List<ReservationEntity> reservasRestaurante = reservationRepository.findByRestaurant_Id(id);
+
+                for (ReservationEntity reserva : reservasRestaurante) {
+                    boolean fueCanceladaPorCierre = "cancelada".equals(reserva.getEstado())
+                            && reserva.getMotivoCancelacion() != null
+                            && reserva.getMotivoCancelacion().startsWith("El restaurante cerró por:");
+
+                    if (fueCanceladaPorCierre) {
+                        String nombreRest = reserva.getRestaurant() != null
+                                ? reserva.getRestaurant().getNombre()
+                                : "el restaurante";
+                        inAppNotificationService.crear(
+                                reserva.getEmail(),
+                                "RESTAURANT_REOPENED",
+                                "✅ " + nombreRest + " ya está abierto de nuevo. Puedes reprogramar tu reserva.",
+                                reserva.getId(), null);
                     }
                 }
             }
