@@ -1,15 +1,21 @@
 package com.grupo6.Comanda.controller;
 
+import com.grupo6.Comanda.controller.dto.RejectRequestBody;
 import com.grupo6.Comanda.model.entities.RestaurantEntity;
 import com.grupo6.Comanda.model.entities.RestaurantRequestEntity;
+import com.grupo6.Comanda.model.entities.CommentEntity;
+import com.grupo6.Comanda.repository.CommentRepository;
+import com.grupo6.Comanda.repository.TableRepository;
 import com.grupo6.Comanda.service.RestaurantsService;
 
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;  // ← IMPORT NUEVO
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
+import java.util.HashMap;
+import java.util.OptionalDouble;
 
 @RestController
 @RequestMapping("/api/restaurants")
@@ -17,9 +23,15 @@ import java.util.Map;
 public class RestaurantsApiController {
 
     private final RestaurantsService restaurantsService;
+    private final TableRepository tableRepository;
+    private final CommentRepository commentRepository;
 
-    public RestaurantsApiController(RestaurantsService restaurantsService) {
+    public RestaurantsApiController(RestaurantsService restaurantsService,
+                                    TableRepository tableRepository,
+                                    CommentRepository commentRepository) {
         this.restaurantsService = restaurantsService;
+        this.tableRepository = tableRepository;
+        this.commentRepository = commentRepository;
     }
 
     // ── Restaurants ──────────────────────────────────────────────────────────
@@ -34,13 +46,44 @@ public class RestaurantsApiController {
         return restaurantsService.getOne(id);
     }
 
-    @PreAuthorize("hasRole('ADMINISTRADOR')")          // ← NUEVO
+    /**
+     * Stats públicas de un restaurante: total de mesas, rating promedio y total de reseñas.
+     * GET /api/restaurants/{id}/stats
+     */
+    @GetMapping("/{id}/stats")
+    public ResponseEntity<Map<String, Object>> getStats(@PathVariable Long id) {
+        // Total de mesas
+        long totalMesas = tableRepository.findByRestaurant_Id(id).size();
+
+        // Comentarios con calificación
+        List<CommentEntity> comentarios = commentRepository.findByRestaurant_Id(id);
+        List<Integer> calificaciones = comentarios.stream()
+            .map(CommentEntity::getCalificacion)
+            .filter(c -> c != null && c >= 1 && c <= 5)
+            .toList();
+
+        long totalResenas = calificaciones.size();
+        OptionalDouble promedio = calificaciones.stream()
+            .mapToInt(Integer::intValue)
+            .average();
+        double rating = promedio.isPresent()
+            ? Math.round(promedio.getAsDouble() * 10.0) / 10.0
+            : 0.0;
+
+        Map<String, Object> stats = new HashMap<>();
+        stats.put("totalMesas", totalMesas);
+        stats.put("totalResenas", totalResenas);
+        stats.put("rating", rating);
+        return ResponseEntity.ok(stats);
+    }
+
+    @PreAuthorize("hasRole('ADMINISTRADOR')")
     @PostMapping
     public ResponseEntity<RestaurantEntity> create(@RequestBody RestaurantEntity restaurant) {
         return ResponseEntity.ok(restaurantsService.create(restaurant));
     }
 
-    @PreAuthorize(                                     // ← NUEVO
+    @PreAuthorize(
         "hasRole('ADMINISTRADOR') or " +
         "(hasRole('PERSONAL') and @restaurantSecurityService.esPropietario(authentication, #id))"
     )
@@ -58,7 +101,7 @@ public class RestaurantsApiController {
         return restaurantsService.toggleCierre(id, body);
     }
 
-    @PreAuthorize("hasRole('ADMINISTRADOR')")          // ← NUEVO
+    @PreAuthorize("hasRole('ADMINISTRADOR')")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         return restaurantsService.delete(id);
@@ -66,7 +109,7 @@ public class RestaurantsApiController {
 
     // ── Restaurant requests ──────────────────────────────────────────────────
 
-    @PreAuthorize("hasRole('ADMINISTRADOR')")          // ← NUEVO
+    @PreAuthorize("hasRole('ADMINISTRADOR')")
     @GetMapping("/requests")
     public ResponseEntity<List<RestaurantRequestEntity>> listRequests(
             @RequestParam(value = "estado", required = false) String estado) {
@@ -80,15 +123,23 @@ public class RestaurantsApiController {
         return ResponseEntity.ok(restaurantsService.submitRequest(req));
     }
 
-    @PreAuthorize("hasRole('ADMINISTRADOR')")          // ← NUEVO
+    @PreAuthorize("hasRole('ADMINISTRADOR')")
     @PutMapping("/requests/{id}/accept")
     public ResponseEntity<Map<String, Object>> acceptRequest(@PathVariable Long id) {
         return restaurantsService.acceptRequest(id);
     }
 
-    @PreAuthorize("hasRole('ADMINISTRADOR')")          // ← NUEVO
+    /**
+     * Rechaza una solicitud de restaurante.
+     * Body (opcional): { "motivo": "..." }
+     * Si se proporciona motivo, se envía por email al solicitante.
+     */
+    @PreAuthorize("hasRole('ADMINISTRADOR')")
     @PutMapping("/requests/{id}/reject")
-    public ResponseEntity<Map<String, Object>> rejectRequest(@PathVariable Long id) {
-        return restaurantsService.rejectRequest(id);
+    public ResponseEntity<Map<String, Object>> rejectRequest(
+            @PathVariable Long id,
+            @RequestBody(required = false) RejectRequestBody body) {
+        String motivo = (body != null) ? body.getMotivo() : null;
+        return restaurantsService.rejectRequest(id, motivo);
     }
 }

@@ -26,7 +26,8 @@ public interface RestaurantsService {
 
     ResponseEntity<Map<String, Object>> acceptRequest(Long id);
 
-    ResponseEntity<Map<String, Object>> rejectRequest(Long id);
+    /** Rechaza la solicitud y opcionalmente envía un motivo al solicitante. */
+    ResponseEntity<Map<String, Object>> rejectRequest(Long id, String motivo);
 
     ResponseEntity<RestaurantEntity> toggleCierre(Long id, Map<String, Object> body);
 }

@@ -6,6 +6,7 @@ import com.grupo6.Comanda.model.enums.UserRole;
 import com.grupo6.Comanda.repository.UserRepository;
 import com.grupo6.Comanda.service.UsersService;
 
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -98,7 +99,25 @@ public class UsersServiceImpl implements UsersService {
                 user.setTelefono(body.getTelefono());
             }
 
-            return ResponseEntity.ok(userRepository.save(user));
+            // googleEmail — vincular correo de Google para recuperación de contraseña
+            if (body.getGoogleEmail() != null) {
+                String ge = body.getGoogleEmail().trim();
+                if (!ge.isEmpty() && !ge.matches("^[\\w.+\\-]+@[\\w\\-]+\\.[\\w.]+$")) {
+                    throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                            "El correo de Google no es válido");
+                }
+                user.setGoogleEmail(ge.isEmpty() ? null : ge);
+            }
+
+            try {
+                return ResponseEntity.ok(userRepository.save(user));
+            } catch (DataIntegrityViolationException ex) {
+                if (ex.getMessage() != null && ex.getMessage().contains("uq_google_email")) {
+                    throw new ResponseStatusException(HttpStatus.CONFLICT,
+                            "Este correo de Google ya está siendo utilizado por otro usuario. Por favor elige uno diferente.");
+                }
+                throw ex;
+            }
         }).orElse(ResponseEntity.notFound().build());
     }
 

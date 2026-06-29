@@ -9,12 +9,13 @@ import org.springframework.stereotype.Service;
 
 import com.grupo6.Comanda.model.entities.RestaurantEntity;
 import com.grupo6.Comanda.model.entities.RestaurantRequestEntity;
+import com.grupo6.Comanda.model.entities.ReservationEntity;
 import com.grupo6.Comanda.repository.RestaurantRepository;
 import com.grupo6.Comanda.repository.RestaurantRequestRepository;
+import com.grupo6.Comanda.repository.ReservationRepository;
+import com.grupo6.Comanda.service.NotificationService;
 import com.grupo6.Comanda.service.RestaurantsService;
 
-import com.grupo6.Comanda.repository.ReservationRepository;
-import com.grupo6.Comanda.model.entities.ReservationEntity;
 import java.time.format.DateTimeFormatter;
 
 @Service
@@ -23,13 +24,16 @@ public class RestaurantsServiceImpl implements RestaurantsService {
     private final RestaurantRepository restaurantRepository;
     private final RestaurantRequestRepository requestRepository;
     private final ReservationRepository reservationRepository;
+    private final NotificationService notificationService;
 
     public RestaurantsServiceImpl(RestaurantRepository restaurantRepository,
             RestaurantRequestRepository requestRepository,
-            ReservationRepository reservationRepository) {
+            ReservationRepository reservationRepository,
+            NotificationService notificationService) {
         this.restaurantRepository = restaurantRepository;
         this.requestRepository = requestRepository;
         this.reservationRepository = reservationRepository;
+        this.notificationService = notificationService;
     }
 
     @Override
@@ -72,7 +76,6 @@ public class RestaurantsServiceImpl implements RestaurantsService {
             if (updated.getMesas() != null) {
                 existing.setMesas(updated.getMesas());
             }
-            // telefono es Long — solo actualizar si viene informado
             if (updated.getTelefono() != null) {
                 existing.setTelefono(updated.getTelefono());
             }
@@ -82,12 +85,14 @@ public class RestaurantsServiceImpl implements RestaurantsService {
             if (updated.getImagen() != null) {
                 existing.setImagen(updated.getImagen());
             }
-            if (updated.getHorarioApertura() != null && !updated.getHorarioApertura().isBlank()) {
-                existing.setHorarioApertura(updated.getHorarioApertura().trim());
-            }
-            if (updated.getHorarioCierre() != null && !updated.getHorarioCierre().isBlank()) {
-                existing.setHorarioCierre(updated.getHorarioCierre().trim());
-            }
+            // Horarios por día (null = cerrado ese día)
+            existing.setHorarioLunes(updated.getHorarioLunes());
+            existing.setHorarioMartes(updated.getHorarioMartes());
+            existing.setHorarioMiercoles(updated.getHorarioMiercoles());
+            existing.setHorarioJueves(updated.getHorarioJueves());
+            existing.setHorarioViernes(updated.getHorarioViernes());
+            existing.setHorarioSabado(updated.getHorarioSabado());
+            existing.setHorarioDomingo(updated.getHorarioDomingo());
 
             return ResponseEntity.ok(restaurantRepository.save(existing));
         }).orElse(ResponseEntity.notFound().build());
@@ -140,20 +145,33 @@ public class RestaurantsServiceImpl implements RestaurantsService {
                 r.setTelefono(req.getTelefono());
                 r.setEmail(req.getEmail());
                 r.setImagen(req.getImagen());
-                r.setHorarioApertura(req.getHorarioApertura() != null ? req.getHorarioApertura() : "");
-                r.setHorarioCierre(req.getHorarioCierre() != null ? req.getHorarioCierre() : "");
+                // Copiar horarios por día desde la solicitud
+                r.setHorarioLunes(req.getHorarioLunes());
+                r.setHorarioMartes(req.getHorarioMartes());
+                r.setHorarioMiercoles(req.getHorarioMiercoles());
+                r.setHorarioJueves(req.getHorarioJueves());
+                r.setHorarioViernes(req.getHorarioViernes());
+                r.setHorarioSabado(req.getHorarioSabado());
+                r.setHorarioDomingo(req.getHorarioDomingo());
                 restaurantRepository.save(r);
             }
+
+            // Notificar al solicitante que su restaurante fue aceptado
+            notificationService.notificarAceptacionSolicitudRestaurante(req);
 
             return ResponseEntity.ok(Map.<String, Object>of("message", "Request accepted", "requestId", id));
         }).orElse(ResponseEntity.notFound().build());
     }
 
     @Override
-    public ResponseEntity<Map<String, Object>> rejectRequest(Long id) {
+    public ResponseEntity<Map<String, Object>> rejectRequest(Long id, String motivo) {
         return requestRepository.findById(id).map(req -> {
             req.setEstado("rechazado");
             requestRepository.save(req);
+
+            // Notificar al solicitante con el motivo del rechazo
+            notificationService.notificarRechazoSolicitudRestaurante(req, motivo);
+
             return ResponseEntity.ok(Map.<String, Object>of("message", "Request rejected", "requestId", id));
         }).orElse(ResponseEntity.notFound().build());
     }
@@ -184,6 +202,8 @@ public class RestaurantsServiceImpl implements RestaurantsService {
                         reserva.setMotivoCancelacion(
                                 "El restaurante cerró por: " + (motivo != null ? motivo : "inconvenientes operativos"));
                         reservationRepository.save(reserva);
+                        // Notificar al cliente de la cancelación por cierre
+                        notificationService.notificarCancelacionReserva(reserva, reserva.getMotivoCancelacion());
                     }
                 }
             }

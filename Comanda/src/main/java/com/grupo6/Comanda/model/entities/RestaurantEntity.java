@@ -1,5 +1,6 @@
 package com.grupo6.Comanda.model.entities;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
 
@@ -26,13 +27,12 @@ public class RestaurantEntity {
     @Column(name = "distrito")
     private String distrito;
 
-    // FIX: direccion puede ser larga (nombre de calle + número + referencia)
     @Schema(description = "Dirección exacta", example = "Av. Larco 456, Miraflores")
     @Column(name = "direccion", columnDefinition = "TEXT")
     private String direccion;
 
-    // FIX: mensaje personalizado puede superar 255 chars (slogan, descripción)
     @Schema(description = "Mensaje de bienvenida personalizado", example = "¡Te esperamos para una experiencia única!")
+    @JsonProperty("mensaje_personalizado")
     @Column(name = "mensaje_personalizado", columnDefinition = "TEXT")
     private String mensajePersonalizado;
 
@@ -48,18 +48,43 @@ public class RestaurantEntity {
     @Column(name = "email")
     private String email;
 
-    // FIX: imagen es una URL que puede superar 255 chars (URLs de CDN/Cloudinary son largas)
-    @Schema(description = "URL de la imagen del restaurante", example = "https://storage.example.com/img/bella-italia.jpg")
+    @Schema(description = "URL de la imagen del restaurante")
     @Column(name = "imagen", columnDefinition = "TEXT")
     private String imagen;
 
-    @Schema(description = "Hora de apertura", example = "12:00")
-    @Column(name = "horario_apertura")
-    private String horarioApertura;
+    // ── Horarios por día ──────────────────────────────────────────────────────
+    // Formato de cada campo: "HH:mm-HH:mm"  (apertura-cierre)
+    // Ejemplo: "09:00-22:00". Si el restaurante no abre ese día → null.
 
-    @Schema(description = "Hora de cierre", example = "23:00")
-    @Column(name = "horario_cierre")
-    private String horarioCierre;
+    @Schema(description = "Horario del lunes (apertura-cierre)", example = "09:00-22:00")
+    @Column(name = "horario_lunes")
+    private String horarioLunes;
+
+    @Schema(description = "Horario del martes (apertura-cierre)", example = "09:00-22:00")
+    @Column(name = "horario_martes")
+    private String horarioMartes;
+
+    @Schema(description = "Horario del miércoles (apertura-cierre)", example = "09:00-22:00")
+    @Column(name = "horario_miercoles")
+    private String horarioMiercoles;
+
+    @Schema(description = "Horario del jueves (apertura-cierre)", example = "09:00-22:00")
+    @Column(name = "horario_jueves")
+    private String horarioJueves;
+
+    @Schema(description = "Horario del viernes (apertura-cierre)", example = "09:00-22:00")
+    @Column(name = "horario_viernes")
+    private String horarioViernes;
+
+    @Schema(description = "Horario del sábado (apertura-cierre)", example = "10:00-23:00")
+    @Column(name = "horario_sabado")
+    private String horarioSabado;
+
+    @Schema(description = "Horario del domingo (apertura-cierre)", example = "10:00-23:00")
+    @Column(name = "horario_domingo")
+    private String horarioDomingo;
+
+    // ── Cierre temporal ───────────────────────────────────────────────────────
 
     @Schema(description = "Indica si el restaurante está cerrado hoy por algún inconveniente", example = "false")
     @Column(name = "cerrado_hoy")
@@ -69,55 +94,62 @@ public class RestaurantEntity {
     @Column(name = "motivo_cierre", columnDefinition = "TEXT")
     private String motivoCierre;
 
-    public Long   getId()           { return id; }
-    public void   setId(Long id)    { this.id = id; }
+    // ── Getters / Setters ─────────────────────────────────────────────────────
+
+    public Long getId()             { return id; }
+    public void setId(Long id)      { this.id = id; }
 
     public String getNombre()       { return nombre; }
-    public void   setNombre(String nombre) { this.nombre = nombre; }
+    public void setNombre(String n) { this.nombre = n; }
 
     public String getTipo()         { return tipo; }
-    public void   setTipo(String tipo) { this.tipo = tipo; }
+    public void setTipo(String t)   { this.tipo = t; }
 
-    public String getDistrito()     { return distrito; }
-    public void   setDistrito(String distrito) { this.distrito = distrito; }
+    public String getDistrito()           { return distrito; }
+    public void   setDistrito(String d)   { this.distrito = d; }
 
-    public String getDireccion()    { return direccion; }
-    public void   setDireccion(String direccion) { this.direccion = direccion; }
+    public String getDireccion()          { return direccion; }
+    public void   setDireccion(String d)  { this.direccion = d; }
 
-    public String getMensajePersonalizado() { return mensajePersonalizado; }
-    public void   setMensajePersonalizado(String msg) { this.mensajePersonalizado = msg; }
+    public String getMensajePersonalizado()          { return mensajePersonalizado; }
+    public void   setMensajePersonalizado(String m)  { this.mensajePersonalizado = m; }
 
-    public Integer getMesas()       { return mesas; }
-    public void    setMesas(Integer mesas) { this.mesas = mesas; }
+    public Integer getMesas()             { return mesas; }
+    public void    setMesas(Integer m)    { this.mesas = m; }
 
-    public Long   getTelefono()     { return telefono; }
-    public void   setTelefono(Long telefono) { this.telefono = telefono; }
+    public Long getTelefono()             { return telefono; }
+    public void setTelefono(Long t)       { this.telefono = t; }
 
-    public String getEmail()        { return email; }
-    public void   setEmail(String email) { this.email = email; }
+    public String getEmail()              { return email; }
+    public void   setEmail(String e)      { this.email = e; }
 
-    public String getImagen()       { return imagen; }
-    public void   setImagen(String imagen) { this.imagen = imagen; }
+    public String getImagen()             { return imagen; }
+    public void   setImagen(String i)     { this.imagen = i; }
 
-    public String getHorarioApertura() { return horarioApertura; }
-    public void   setHorarioApertura(String h) { this.horarioApertura = h; }
+    public String getHorarioLunes()               { return horarioLunes; }
+    public void   setHorarioLunes(String h)       { this.horarioLunes = h; }
 
-    public String getHorarioCierre()   { return horarioCierre; }
-    public void   setHorarioCierre(String h) { this.horarioCierre = h; }
+    public String getHorarioMartes()              { return horarioMartes; }
+    public void   setHorarioMartes(String h)      { this.horarioMartes = h; }
 
-    public Boolean getCerradoHoy() {
-        return cerradoHoy;
-    }
+    public String getHorarioMiercoles()           { return horarioMiercoles; }
+    public void   setHorarioMiercoles(String h)   { this.horarioMiercoles = h; }
 
-    public void setCerradoHoy(Boolean cerradoHoy) {
-        this.cerradoHoy = cerradoHoy;
-    }
+    public String getHorarioJueves()              { return horarioJueves; }
+    public void   setHorarioJueves(String h)      { this.horarioJueves = h; }
 
-    public String getMotivoCierre() {
-        return motivoCierre;
-    }
+    public String getHorarioViernes()             { return horarioViernes; }
+    public void   setHorarioViernes(String h)     { this.horarioViernes = h; }
 
-    public void setMotivoCierre(String motivoCierre) {
-        this.motivoCierre = motivoCierre;
-    }
+    public String getHorarioSabado()              { return horarioSabado; }
+    public void   setHorarioSabado(String h)      { this.horarioSabado = h; }
+
+    public String getHorarioDomingo()             { return horarioDomingo; }
+    public void   setHorarioDomingo(String h)     { this.horarioDomingo = h; }
+
+    public Boolean getCerradoHoy()                { return cerradoHoy; }
+    public void    setCerradoHoy(Boolean b)       { this.cerradoHoy = b; }
+
+    public String getMotivoCierre()               { return motivoCierre; }
+    public void   setMotivoCierre(String m)       { this.motivoCierre = m; }
 }
