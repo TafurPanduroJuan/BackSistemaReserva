@@ -6,6 +6,7 @@ import com.grupo6.Comanda.model.enums.UserRole;
 import com.grupo6.Comanda.repository.UserRepository;
 import com.grupo6.Comanda.service.UsersService;
 
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -108,7 +109,15 @@ public class UsersServiceImpl implements UsersService {
                 user.setGoogleEmail(ge.isEmpty() ? null : ge);
             }
 
-            return ResponseEntity.ok(userRepository.save(user));
+            try {
+                return ResponseEntity.ok(userRepository.save(user));
+            } catch (DataIntegrityViolationException ex) {
+                if (ex.getMessage() != null && ex.getMessage().contains("uq_google_email")) {
+                    throw new ResponseStatusException(HttpStatus.CONFLICT,
+                            "Este correo de Google ya está siendo utilizado por otro usuario. Por favor elige uno diferente.");
+                }
+                throw ex;
+            }
         }).orElse(ResponseEntity.notFound().build());
     }
 
