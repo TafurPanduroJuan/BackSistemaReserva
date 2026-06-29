@@ -13,6 +13,7 @@ import com.grupo6.Comanda.model.entities.ReservationEntity;
 import com.grupo6.Comanda.repository.RestaurantRepository;
 import com.grupo6.Comanda.repository.RestaurantRequestRepository;
 import com.grupo6.Comanda.repository.ReservationRepository;
+import com.grupo6.Comanda.service.InAppNotificationService;
 import com.grupo6.Comanda.service.NotificationService;
 import com.grupo6.Comanda.service.RestaurantsService;
 
@@ -25,15 +26,18 @@ public class RestaurantsServiceImpl implements RestaurantsService {
     private final RestaurantRequestRepository requestRepository;
     private final ReservationRepository reservationRepository;
     private final NotificationService notificationService;
+    private final InAppNotificationService inAppNotificationService;
 
     public RestaurantsServiceImpl(RestaurantRepository restaurantRepository,
             RestaurantRequestRepository requestRepository,
             ReservationRepository reservationRepository,
-            NotificationService notificationService) {
+            NotificationService notificationService,
+            InAppNotificationService inAppNotificationService) {
         this.restaurantRepository = restaurantRepository;
         this.requestRepository = requestRepository;
         this.reservationRepository = reservationRepository;
         this.notificationService = notificationService;
+        this.inAppNotificationService = inAppNotificationService;
     }
 
     @Override
@@ -188,8 +192,7 @@ public class RestaurantsServiceImpl implements RestaurantsService {
 
             RestaurantEntity guardado = restaurantRepository.save(restaurant);
 
-            // Si no se especifica fecha, usar hoy por defecto (compatibilidad con llamadas
-            // antiguas)
+            // Si no se especifica fecha, usar hoy por defecto (compatibilidad con llamadas antiguas)
             String fechaObjetivo = (fecha != null && !fecha.isBlank())
                     ? fecha
                     : LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE);
@@ -208,8 +211,21 @@ public class RestaurantsServiceImpl implements RestaurantsService {
                         reserva.setMotivoCancelacion(
                                 "El restaurante cerró por: " + (motivo != null ? motivo : "inconvenientes operativos"));
                         reservationRepository.save(reserva);
-                        // Notificar al cliente de la cancelación por cierre
+
+                        // Notificar al cliente por email
                         notificationService.notificarCancelacionReserva(reserva, reserva.getMotivoCancelacion());
+
+                        // ✅ FIX: Crear notificación in-app para que aparezca en la campanita
+                        String nombreRest = reserva.getRestaurant() != null
+                                ? reserva.getRestaurant().getNombre() : "el restaurante";
+                        inAppNotificationService.crear(
+                            reserva.getEmail(),
+                            "RESERVATION_CANCELLED",
+                            "❌ Tu reserva en " + nombreRest + " para el " + reserva.getFecha()
+                                + " a las " + reserva.getHora() + " fue cancelada."
+                                + " Motivo: " + reserva.getMotivoCancelacion(),
+                            reserva.getId(), null
+                        );
                     }
                 }
             }
