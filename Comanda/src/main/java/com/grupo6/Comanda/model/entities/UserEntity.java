@@ -60,6 +60,14 @@ public class UserEntity {
     @Column(name = "fecha_registro", nullable = false)
     private String createdAt;
 
+    @Schema(description = "Indica si el usuario solicitó recuperar su contraseña", example = "false")
+    @Column(name = "solicito_reset")
+    private Boolean solicitoReset = false;
+
+    @Schema(description = "Fecha en que se solicitó el reset de contraseña (ISO-8601)", example = "2026-06-26")
+    @Column(name = "fecha_solicitud_reset")
+    private String fechaSolicitudReset;
+
     public Long   getId()           { return id; }
     public void   setId(Long id)    { this.id = id; }
 
@@ -96,6 +104,21 @@ public class UserEntity {
     public String getCreatedAt()    { return createdAt; }
     public void   setCreatedAt(String createdAt) { this.createdAt = createdAt; }
 
+    @JsonProperty("solicitoReset")
+    public Boolean getSolicitoReset() {
+        return solicitoReset;
+    }
+    public void setSolicitoReset(Boolean solicitoReset) {
+        this.solicitoReset = solicitoReset;
+    }
+    @JsonProperty("fechaSolicitudReset")
+    public String getFechaSolicitudReset() {
+        return fechaSolicitudReset;
+    }
+    public void setFechaSolicitudReset(String fechaSolicitudReset) {
+        this.fechaSolicitudReset = fechaSolicitudReset;
+    }
+
     public String getGoogleEmail()  { return googleEmail; }
     public void   setGoogleEmail(String googleEmail) { this.googleEmail = googleEmail; }
 
@@ -105,3 +128,4 @@ public class UserEntity {
     public Long   getPasswordResetExpires() { return passwordResetExpires; }
     public void   setPasswordResetExpires(Long e) { this.passwordResetExpires = e; }
 }
+

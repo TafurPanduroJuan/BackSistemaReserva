@@ -184,6 +184,20 @@ public class AuthService {
         return r;
     }
 
+    public void forgotPassword(String email) {
+        if (email == null || email.isBlank()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Email is required");
+        }
+
+        UserEntity user = userRepository.findByEmail(email)
+                .orElseThrow(
+                        () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "No account found with that email"));
+
+        user.setSolicitoReset(true);
+        user.setFechaSolicitudReset(LocalDate.now().toString());
+        userRepository.save(user);
+    }
+
     private org.springframework.security.core.userdetails.UserDetails buildSpringUser(UserEntity user) {
         return new org.springframework.security.core.userdetails.User(
                 user.getEmail(),

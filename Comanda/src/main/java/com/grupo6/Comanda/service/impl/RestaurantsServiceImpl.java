@@ -181,23 +181,29 @@ public class RestaurantsServiceImpl implements RestaurantsService {
         return restaurantRepository.findById(id).map(restaurant -> {
             Boolean cerrado = (Boolean) body.get("cerradoHoy");
             String motivo = (String) body.get("motivoCierre");
+            String fecha = (String) body.get("fecha"); // YYYY-MM-DD, fecha específica a cerrar (opcional)
 
             restaurant.setCerradoHoy(cerrado != null ? cerrado : false);
             restaurant.setMotivoCierre(cerrado != null && cerrado ? motivo : null);
 
             RestaurantEntity guardado = restaurantRepository.save(restaurant);
 
-            // Si se está cerrando hoy, cancelar las reservas del día con el motivo
-            if (cerrado != null && cerrado) {
-                String hoy = LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE);
-                List<ReservationEntity> reservasHoy = reservationRepository.findByRestaurant_Id(id);
+            // Si no se especifica fecha, usar hoy por defecto (compatibilidad con llamadas
+            // antiguas)
+            String fechaObjetivo = (fecha != null && !fecha.isBlank())
+                    ? fecha
+                    : LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE);
 
-                for (ReservationEntity reserva : reservasHoy) {
-                    boolean esHoy = hoy.equals(reserva.getFecha());
+            // Si se está cerrando, cancelar las reservas de la fecha objetivo con el motivo
+            if (cerrado != null && cerrado) {
+                List<ReservationEntity> reservasRestaurante = reservationRepository.findByRestaurant_Id(id);
+
+                for (ReservationEntity reserva : reservasRestaurante) {
+                    boolean esLaFecha = fechaObjetivo.equals(reserva.getFecha());
                     boolean estaActiva = "pendiente".equals(reserva.getEstado())
                             || "confirmada".equals(reserva.getEstado());
 
-                    if (esHoy && estaActiva) {
+                    if (esLaFecha && estaActiva) {
                         reserva.setEstado("cancelada");
                         reserva.setMotivoCancelacion(
                                 "El restaurante cerró por: " + (motivo != null ? motivo : "inconvenientes operativos"));
