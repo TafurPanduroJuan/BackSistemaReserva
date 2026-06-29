@@ -179,25 +179,26 @@ public class RestaurantsServiceImpl implements RestaurantsService {
     @Override
     public ResponseEntity<RestaurantEntity> toggleCierre(Long id, Map<String, Object> body) {
         return restaurantRepository.findById(id).map(restaurant -> {
-            Boolean cerrado = (Boolean) body.get("cerradoHoy");
+            Boolean cerrado = (Boolean) body.get("cerrado");
             String motivo = (String) body.get("motivoCierre");
+            String fecha = (String) body.get("fecha"); // YYYY-MM-DD, fecha a cerrar
 
             restaurant.setCerradoHoy(cerrado != null ? cerrado : false);
             restaurant.setMotivoCierre(cerrado != null && cerrado ? motivo : null);
 
             RestaurantEntity guardado = restaurantRepository.save(restaurant);
 
-            // Si se está cerrando hoy, cancelar las reservas del día con el motivo
-            if (cerrado != null && cerrado) {
-                String hoy = LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE);
-                List<ReservationEntity> reservasHoy = reservationRepository.findByRestaurant_Id(id);
+            // Si se está programando un cierre, cancelar las reservas de esa fecha con el
+            // motivo
+            if (cerrado != null && cerrado && fecha != null && !fecha.isBlank()) {
+                List<ReservationEntity> reservasRestaurante = reservationRepository.findByRestaurant_Id(id);
 
-                for (ReservationEntity reserva : reservasHoy) {
-                    boolean esHoy = hoy.equals(reserva.getFecha());
+                for (ReservationEntity reserva : reservasRestaurante) {
+                    boolean esLaFecha = fecha.equals(reserva.getFecha());
                     boolean estaActiva = "pendiente".equals(reserva.getEstado())
                             || "confirmada".equals(reserva.getEstado());
 
-                    if (esHoy && estaActiva) {
+                    if (esLaFecha && estaActiva) {
                         reserva.setEstado("cancelada");
                         reserva.setMotivoCancelacion(
                                 "El restaurante cerró por: " + (motivo != null ? motivo : "inconvenientes operativos"));
