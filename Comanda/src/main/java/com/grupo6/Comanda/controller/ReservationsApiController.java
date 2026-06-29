@@ -6,6 +6,7 @@ import com.grupo6.Comanda.repository.ReservationRepository;
 import com.grupo6.Comanda.repository.TableRepository;
 import com.grupo6.Comanda.service.ReservationsService;
 import com.grupo6.Comanda.service.NotificationService;
+import com.grupo6.Comanda.service.InAppNotificationService;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -32,15 +33,18 @@ public class ReservationsApiController {
     private final ReservationRepository reservationRepository;
     private final TableRepository tableRepository;
     private final NotificationService notificationService;
+    private final InAppNotificationService inAppNotificationService;
 
     public ReservationsApiController(ReservationsService service,
                                      ReservationRepository reservationRepository,
                                      TableRepository tableRepository,
-                                     NotificationService notificationService) {
+                                     NotificationService notificationService,
+                                     InAppNotificationService inAppNotificationService) {
         this.service = service;
         this.reservationRepository = reservationRepository;
         this.tableRepository = tableRepository;
         this.notificationService = notificationService;
+        this.inAppNotificationService = inAppNotificationService;
     }
 
     /**
@@ -119,6 +123,30 @@ public class ReservationsApiController {
                     // (cancelada = cancelada por el restaurante, no por el cliente)
                     if ("cancelada".equals(nuevoEstado) && !"cancelada".equals(estadoAnterior)) {
                         notificationService.notificarCancelacionReserva(res, body.getMotivoCancelacion());
+                    }
+
+                    // ── Notificaciones in-app ──────────────────────────────────────
+                    String restauranteNombre = res.getRestaurant() != null
+                            ? res.getRestaurant().getNombre() : "el restaurante";
+
+                    if ("confirmada".equals(nuevoEstado) && !"confirmada".equals(estadoAnterior)) {
+                        inAppNotificationService.crear(
+                            res.getEmail(),
+                            "RESERVATION_CONFIRMED",
+                            "✅ Tu reserva en " + restauranteNombre + " para el " + res.getFecha()
+                                + " a las " + res.getHora() + " fue confirmada.",
+                            res.getId(), null
+                        );
+                    } else if ("cancelada".equals(nuevoEstado) && !"cancelada".equals(estadoAnterior)) {
+                        String motivo = (body.getMotivoCancelacion() != null && !body.getMotivoCancelacion().isBlank())
+                                ? " Motivo: " + body.getMotivoCancelacion() : "";
+                        inAppNotificationService.crear(
+                            res.getEmail(),
+                            "RESERVATION_CANCELLED",
+                            "❌ Tu reserva en " + restauranteNombre + " para el " + res.getFecha()
+                                + " a las " + res.getHora() + " fue cancelada." + motivo,
+                            res.getId(), null
+                        );
                     }
 
                     Map<String, Object> resp = new HashMap<>();
