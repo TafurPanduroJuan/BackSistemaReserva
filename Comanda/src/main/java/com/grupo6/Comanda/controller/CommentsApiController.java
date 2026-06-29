@@ -1,13 +1,12 @@
 package com.grupo6.Comanda.controller;
 
 import com.grupo6.Comanda.model.entities.CommentEntity;
-import com.grupo6.Comanda.model.entities.RestaurantEntity;
 import com.grupo6.Comanda.model.entities.UserEntity;
 import com.grupo6.Comanda.repository.CommentRepository;
-import com.grupo6.Comanda.repository.RestaurantRepository;
 import com.grupo6.Comanda.repository.UserRepository;
 import com.grupo6.Comanda.service.CommentsService;
 import com.grupo6.Comanda.service.NotificationService;
+import com.grupo6.Comanda.service.InAppNotificationService;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -38,18 +37,18 @@ public class CommentsApiController {
     private final CommentRepository commentRepository;
     private final NotificationService notificationService;
     private final UserRepository userRepository;
-    private final RestaurantRepository restaurantRepository;
+    private final InAppNotificationService inAppNotificationService;
 
     public CommentsApiController(CommentsService commentsService,
                                   CommentRepository commentRepository,
                                   NotificationService notificationService,
                                   UserRepository userRepository,
-                                  RestaurantRepository restaurantRepository) {
+                                  InAppNotificationService inAppNotificationService) {
         this.commentsService = commentsService;
         this.commentRepository = commentRepository;
         this.notificationService = notificationService;
         this.userRepository = userRepository;
-        this.restaurantRepository = restaurantRepository;
+        this.inAppNotificationService = inAppNotificationService;
     }
 
     @GetMapping
@@ -82,18 +81,8 @@ public class CommentsApiController {
 
         String nombreRestaurante = personal.getRestaurant().trim();
 
-        // Buscar el restaurante por nombre para obtener su ID (más confiable que comparar strings)
-        RestaurantEntity restaurante = restaurantRepository.findByNombre(nombreRestaurante)
-                .orElse(null);
-
-        List<CommentEntity> todos;
-        if (restaurante != null) {
-            // Filtrar por ID del restaurante (evita problemas de mayúsculas/espacios)
-            todos = commentRepository.findByRestaurant_Id(restaurante.getId());
-        } else {
-            // Fallback: buscar por nombre ignorando mayúsculas
-            todos = commentRepository.findByRestaurant_NombreIgnoreCase(nombreRestaurante);
-        }
+        // Buscar por nombre exacto y también por nombre ignorando mayúsculas
+        List<CommentEntity> todos = commentRepository.findByRestaurant_NombreIgnoreCase(nombreRestaurante);
 
         if (tipo != null && !tipo.isBlank()) {
             todos = todos.stream()
@@ -171,6 +160,17 @@ public class CommentsApiController {
 
                 // Notificar al cliente por email
                 notificationService.notificarRespuestaComentario(comentario);
+
+                // ── Notificación in-app ───────────────────────────────────────
+                String restauranteNombre = comentario.getRestaurant() != null
+                        ? comentario.getRestaurant().getNombre() : "el restaurante";
+                inAppNotificationService.crear(
+                    comentario.getEmail(),
+                    "COMMENT_REPLY",
+                    "💬 " + restauranteNombre + " respondió a tu " + comentario.getTipo()
+                        + " \"" + comentario.getAsunto() + "\".",
+                    null, comentario.getId()
+                );
 
                 return ResponseEntity.ok(Map.<String, Object>of(
                     "message", "Respuesta guardada y notificación enviada",
