@@ -54,6 +54,10 @@ public class RestaurantRequestEntity {
     @Column(name = "imagen", columnDefinition = "TEXT")
     private String imagen;
 
+    @Schema(description = "Rango de precios propuesto: $ (económico), $$ (moderado), $$$ (elevado) o $$$$ (premium)", example = "$$")
+    @Column(name = "precio")
+    private String precio;
+
     // ── Horarios por día ──────────────────────────────────────────────────────
     // Formato: "HH:mm-HH:mm"  (apertura-cierre). null = cerrado ese día.
 
@@ -127,6 +131,9 @@ public class RestaurantRequestEntity {
 
     public String getImagen()             { return imagen; }
     public void   setImagen(String i)     { this.imagen = i; }
+
+    public String getPrecio()             { return precio; }
+    public void   setPrecio(String p)     { this.precio = p; }
 
     public String getHorarioLunes()               { return horarioLunes; }
     public void   setHorarioLunes(String h)       { this.horarioLunes = h; }
