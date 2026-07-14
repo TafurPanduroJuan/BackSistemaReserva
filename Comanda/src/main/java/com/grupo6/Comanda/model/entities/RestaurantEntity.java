@@ -40,6 +40,10 @@ public class RestaurantEntity {
     @Column(name = "mesas")
     private Integer mesas;
 
+    @Schema(description = "Rango de precios del restaurante: $ (económico), $$ (moderado), $$$ (elevado) o $$$$ (premium)", example = "$$")
+    @Column(name = "precio")
+    private String precio = "$";
+
     @Schema(description = "Teléfono del restaurante (exactamente 9 dígitos)", example = "987654321")
     @Column(name = "telefono")
     private Long telefono;
@@ -116,6 +120,9 @@ public class RestaurantEntity {
 
     public Integer getMesas()             { return mesas; }
     public void    setMesas(Integer m)    { this.mesas = m; }
+
+    public String getPrecio()             { return precio; }
+    public void   setPrecio(String p)     { this.precio = p; }
 
     public Long getTelefono()             { return telefono; }
     public void setTelefono(Long t)       { this.telefono = t; }
