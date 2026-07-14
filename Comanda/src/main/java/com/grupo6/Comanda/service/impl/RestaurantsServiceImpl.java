@@ -80,6 +80,9 @@ public class RestaurantsServiceImpl implements RestaurantsService {
             if (updated.getMesas() != null) {
                 existing.setMesas(updated.getMesas());
             }
+            if (updated.getPrecio() != null && !updated.getPrecio().isBlank()) {
+                existing.setPrecio(updated.getPrecio().trim());
+            }
             if (updated.getTelefono() != null) {
                 existing.setTelefono(updated.getTelefono());
             }
@@ -125,6 +128,9 @@ public class RestaurantsServiceImpl implements RestaurantsService {
         if (req.getFecha() == null || req.getFecha().isBlank()) {
             req.setFecha(LocalDate.now().toString());
         }
+        if (req.getPrecio() == null || req.getPrecio().isBlank()) {
+            req.setPrecio("$");
+        }
         return requestRepository.save(req);
     }
 
@@ -146,6 +152,7 @@ public class RestaurantsServiceImpl implements RestaurantsService {
                         : req.getDescripcion()
                 );
                 r.setMesas(0);
+                r.setPrecio(req.getPrecio() != null && !req.getPrecio().isBlank() ? req.getPrecio() : "$");
                 r.setTelefono(req.getTelefono());
                 r.setEmail(req.getEmail());
                 r.setImagen(req.getImagen());

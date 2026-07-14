@@ -103,6 +103,7 @@ CREATE TABLE restaurants (
     direccion             VARCHAR(300)    NOT NULL,
     mensaje_personalizado TEXT            NOT NULL,
     mesas                 INTEGER         NOT NULL CHECK (mesas > 0),
+    precio                VARCHAR(4)      NOT NULL DEFAULT '$',
     telefono              VARCHAR(20)     NOT NULL,
     email                 VARCHAR(200)    NOT NULL,
     imagen                TEXT,
